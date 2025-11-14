@@ -1,0 +1,61 @@
+.container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.container:hover {
+  background: #f5f5f5;
+}
+
+.container.active {
+  background: #e6f7ff;
+  border: 1px solid #91d5ff;
+}
+
+.icon {
+  flex-shrink: 0;
+  font-size: 16px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.container.active .icon {
+  color: #1890ff;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.meta {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dot {
+  font-size: 10px;
+}
+
+.deleteBtn {
+  flex-shrink: 0;
+}

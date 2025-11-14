@@ -1,0 +1,84 @@
+.container {
+  display: flex;
+  gap: 12px;
+  padding: 16px 0;
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.avatar {
+  flex-shrink: 0;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.role {
+  font-weight: 600;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.time {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.messageBody {
+  background: #f5f5f5;
+  border-radius: 8px;
+  padding: 12px 16px;
+  word-wrap: break-word;
+}
+
+.user .messageBody {
+  background: #e6f7ff;
+}
+
+.error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ff4d4f;
+}
+
+.errorDetails {
+  font-size: 12px;
+  text-decoration: underline;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+.metadata {
+  margin-top: 12px;
+  padding-top: 12px;
+}
+
+.badges {
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+.confidence {
+  color: rgba(0, 0, 0, 0.65);
+  font-size: 12px;
+}
