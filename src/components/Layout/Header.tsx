@@ -96,34 +96,23 @@ export const Header: React.FC = () => {
               {getStatusBadge(healthData.status)}
             </Descriptions.Item>
 
-            {healthData.ollama && (
+            {healthData.llm && (
               <>
-                <Descriptions.Item label="Ollama 服务">
-                  {healthData.ollama.running ? (
-                    <Badge status="success" text="运行中" />
+                <Descriptions.Item label="LLM 提供商">
+                  {healthData.llm.provider || '未知'}
+                </Descriptions.Item>
+
+                <Descriptions.Item label="LLM 状态">
+                  {healthData.llm.ready ? (
+                    <Badge status="success" text="就绪" />
                   ) : (
-                    <Badge status="error" text="未运行" />
+                    <Badge status="error" text="未就绪" />
                   )}
                 </Descriptions.Item>
 
                 <Descriptions.Item label="当前模型">
-                  {healthData.ollama.current_model || '未知'}
+                  {healthData.llm.current_model || '未知'}
                 </Descriptions.Item>
-
-                <Descriptions.Item label="模型可用">
-                  {healthData.ollama.model_available ? '是' : '否'}
-                </Descriptions.Item>
-
-                <Descriptions.Item label="模型已加载">
-                  {healthData.ollama.model_loaded ? '是' : '否'}
-                </Descriptions.Item>
-
-                {healthData.ollama.running_models &&
-                  healthData.ollama.running_models.length > 0 && (
-                    <Descriptions.Item label="运行中的模型">
-                      {healthData.ollama.running_models.join(', ')}
-                    </Descriptions.Item>
-                  )}
               </>
             )}
 

@@ -44,12 +44,10 @@ export interface ListDocumentsResponse {
 
 export interface HealthResponse {
   status: 'healthy' | 'degraded' | 'unhealthy';
-  ollama?: {
-    running: boolean;
-    model_available: boolean;
-    model_loaded: boolean;
+  llm?: {
+    provider: string;
+    ready: boolean;
     current_model: string;
-    running_models: string[];
   };
   timestamp: string;
 }
