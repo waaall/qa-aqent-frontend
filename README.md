@@ -52,7 +52,7 @@ npm install
 # npm run dev #前台运行
 
 # pm2后台运行  # npm i -g pm2 安装pm2
-pm2 start ecosystem.config.js
+pm2 start ecosystem.config.cjs
 pm2 logs qa-frontend-dev
 
 # pm2 stop qa-frontend-dev
