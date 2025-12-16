@@ -4,27 +4,27 @@
 
 ### 1. 安装依赖
 
-\`\`\`bash
+```bash
 cd frontend
 npm install
-\`\`\`
+```
 
 ### 2. 启动后端服务
 
 在另一个终端窗口：
 
-\`\`\`bash
+```bash
 cd ..  # 回到项目根目录
 python app.py
-\`\`\`
+```
 
 后端应该运行在 `http://localhost:5000`
 
 ### 3. 启动前端开发服务器
 
-\`\`\`bash
+```bash
 npm run dev
-\`\`\`
+```
 
 ### 4. 打开浏览器
 
@@ -89,15 +89,15 @@ npm run dev
 
 ### 构建
 
-\`\`\`bash
+```bash
 npm run build
-\`\`\`
+```
 
 ### 预览
 
-\`\`\`bash
+```bash
 npm run preview
-\`\`\`
+```
 
 ### 部署
 

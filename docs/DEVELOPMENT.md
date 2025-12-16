@@ -4,16 +4,16 @@
 
 ### 1. 安装依赖
 
-\`\`\`bash
+```bash
 cd frontend
 npm install
-\`\`\`
+```
 
 ### 2. 启动开发服务器
 
-\`\`\`bash
+```bash
 npm run dev
-\`\`\`
+```
 
 访问 `http://localhost:3000`
 
@@ -31,7 +31,7 @@ npm run dev
 
 ### 组件结构
 
-\`\`\`typescript
+```typescript
 // 推荐的组件结构
 import React from 'react';
 import styles from './Component.module.css';
@@ -44,7 +44,7 @@ export const Component: React.FC<ComponentProps> = ({ props }) => {
   // 组件逻辑
   return <div className={styles.container}>Content</div>;
 };
-\`\`\`
+```
 
 ### 命名约定
 
@@ -66,7 +66,7 @@ export const Component: React.FC<ComponentProps> = ({ props }) => {
 
 使用 Zustand 进行全局状态管理：
 
-\`\`\`typescript
+```typescript
 import { create } from 'zustand';
 
 interface MyState {
@@ -80,15 +80,15 @@ export const useMyStore = create<MyState>((set) => ({
     data: [...state.data, item]
   })),
 }));
-\`\`\`
+```
 
 ### 本地状态
 
 简单的组件状态使用 `useState`：
 
-\`\`\`typescript
+```typescript
 const [isOpen, setIsOpen] = useState(false);
-\`\`\`
+```
 
 ## API 调用
 
@@ -96,20 +96,20 @@ const [isOpen, setIsOpen] = useState(false);
 
 不要直接在组件中调用 axios，使用封装的 API service：
 
-\`\`\`typescript
+```typescript
 // ❌ 不推荐
 axios.post('/api/chat', data);
 
 // 推荐
 import { chatApi } from '@/services';
 chatApi.sendMessage(data);
-\`\`\`
+```
 
 ### 错误处理
 
 所有 API 调用都应该处理错误：
 
-\`\`\`typescript
+```typescript
 try {
   const response = await chatApi.sendMessage(data);
   // 处理成功
@@ -117,7 +117,7 @@ try {
   logger.error('Failed to send message', error);
   message.error('发送失败');
 }
-\`\`\`
+```
 
 ## 日志记录
 
@@ -130,7 +130,7 @@ try {
 
 ### 使用示例
 
-\`\`\`typescript
+```typescript
 import logger from '@/utils/logger';
 
 // 记录用户操作
@@ -141,7 +141,7 @@ logger.debug('API Request', { url, params });
 
 // 记录错误
 logger.error('API failed', error);
-\`\`\`
+```
 
 ### 生产环境
 
@@ -151,9 +151,9 @@ logger.error('API failed', error);
 
 ### 运行测试（待实现）
 
-\`\`\`bash
+```bash
 npm run test
-\`\`\`
+```
 
 ### 测试建议
 
@@ -167,17 +167,17 @@ npm run test
 
 对频繁渲染的组件使用 `React.memo`：
 
-\`\`\`typescript
+```typescript
 export const MessageItem = React.memo<MessageItemProps>(({ message }) => {
   // ...
 });
-\`\`\`
+```
 
 ### useCallback 和 useMemo
 
 缓存函数和计算结果：
 
-\`\`\`typescript
+```typescript
 const handleSend = useCallback(() => {
   sendMessage(input);
 }, [input, sendMessage]);
@@ -185,19 +185,19 @@ const handleSend = useCallback(() => {
 const filteredMessages = useMemo(() => {
   return messages.filter(m => !m.isLoading);
 }, [messages]);
-\`\`\`
+```
 
 ### 代码分割
 
 大型组件使用动态导入：
 
-\`\`\`typescript
+```typescript
 const HeavyComponent = React.lazy(() => import('./HeavyComponent'));
 
 <Suspense fallback={<Loading />}>
   <HeavyComponent />
 </Suspense>
-\`\`\`
+```
 
 ## 调试技巧
 
@@ -209,7 +209,7 @@ const HeavyComponent = React.lazy(() => import('./HeavyComponent'));
 
 在开发环境启用 Zustand DevTools：
 
-\`\`\`typescript
+```typescript
 import { devtools } from 'zustand/middleware';
 
 export const useStore = create(
@@ -217,7 +217,7 @@ export const useStore = create(
     // state
   }))
 );
-\`\`\`
+```
 
 ### 网络请求
 
@@ -260,12 +260,12 @@ A: 检查：
 
 遵循 Conventional Commits：
 
-\`\`\`
+```
 feat: 添加文档上传功能
 fix: 修复会话切换bug
 refactor: 重构消息渲染逻辑
 docs: 更新 README
-\`\`\`
+```
 
 ### Pull Request
 

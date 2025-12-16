@@ -40,16 +40,23 @@
 
 ### 安装依赖
 
-\`\`\`bash
+```bash
 cd frontend
 npm install
-\`\`\`
+```
 
 ### 开发模式
 
-\`\`\`bash
+```bash
 # 启动开发服务器（默认: http://localhost:3000）
-npm run dev
+# npm run dev #前台运行
+
+# pm2后台运行  # npm i -g pm2 安装pm2
+pm2 start npm --name dev -- run dev
+pm2 logs dev
+
+# pm2 stop dev    # 停止运行
+# pm2 delete dev
 
 # 运行 ESLint 检查
 npm run lint
@@ -59,13 +66,13 @@ npm run lint:fix
 
 # 格式化代码
 npm run format
-\`\`\`
+```
 
 开发服务器会自动代理 `/api` 请求到后端（配置在 `.env.development`）
 
 ### 生产构建
 
-\`\`\`bash
+```bash
 # 构建生产版本
 npm run build
 
@@ -77,13 +84,13 @@ npm run test
 
 # 测试覆盖率
 npm run test:coverage
-\`\`\`
+```
 
 构建产物位于 `dist/` 目录，代码自动分割为多个 chunks 以优化加载性能。
 
 ## 项目结构
 
-\`\`\`
+```
 frontend/
 ├── src/
 │   ├── components/          # React 组件
@@ -134,13 +141,13 @@ frontend/
 ├── tsconfig.json
 ├── vite.config.ts
 └── README.md
-\`\`\`
+```
 
 ## 环境变量配置
 
 ### 开发环境 (`.env.development`)
 
-\`\`\`env
+```env
 # API配置
 VITE_API_BASE_URL=http://192.168.50.50:5000
 
@@ -155,11 +162,11 @@ VITE_LOG_LEVEL=debug
 
 # 功能开关
 VITE_ENABLE_MOCK=false
-\`\`\`
+```
 
 ### 生产环境 (`.env.production`)
 
-\`\`\`env
+```env
 # API配置 - 生产环境使用相对路径
 VITE_API_BASE_URL=/api
 
@@ -171,7 +178,7 @@ VITE_APP_TITLE=智能问答系统
 
 # 日志级别
 VITE_LOG_LEVEL=error
-\`\`\`
+```
 
 ## 核心功能说明
 
@@ -220,23 +227,23 @@ VITE_LOG_LEVEL=error
 
 使用 `VITE_CHAT_ENDPOINT` 配置（与 `VITE_API_BASE_URL` 拼接）。
 
-\`\`\`typescript
+```typescript
 POST /api/react_query
 {
   "query": "用户问题",
   "session_id": "会话ID（可选）",
   "create_session": true
 }
-\`\`\`
+```
 
 ### 会话管理
 
-\`\`\`typescript
+```typescript
 POST /api/session/create          # 创建会话
 GET /api/session/:id/history      # 获取历史
 DELETE /api/session/:id            # 删除会话
 POST /api/session/:id/refresh     # 刷新会话
-\`\`\`
+```
 
 ## 开发指南
 
@@ -248,7 +255,7 @@ POST /api/session/:id/refresh     # 刷新会话
 
 示例：
 
-\`\`\`typescript
+```typescript
 // src/components/MyComponent/MyComponent.tsx
 import React from 'react';
 import styles from './MyComponent.module.css';
@@ -259,7 +266,7 @@ export const MyComponent: React.FC = () => {
 
 // src/components/MyComponent/index.ts
 export { MyComponent } from './MyComponent';
-\`\`\`
+```
 
 ### 添加新的 API 接口
 
@@ -269,7 +276,7 @@ export { MyComponent } from './MyComponent';
 
 示例：
 
-\`\`\`typescript
+```typescript
 // src/services/myApi.ts
 import apiClient from './apiClient';
 
@@ -278,24 +285,32 @@ export const myApi = {
     return apiClient.get<DataResponse>('/my-endpoint');
   }
 };
-\`\`\`
+```
 
 ### 日志记录
 
 使用 `logger` 工具记录关键操作：
 
-\`\`\`typescript
+```typescript
 import logger from '@/utils/logger';
 
 logger.info('User action', { userId: 123 });
 logger.error('API failed', error);
-\`\`\`
+```
 
 日志级别：
 - `debug` - 开发调试信息
 - `info` - 一般信息
 - `warn` - 警告
 - `error` - 错误
+
+## 代码规范
+
+- **命名规范**: PascalCase (组件), camelCase (函数/变量)
+- **代码风格**: ESLint + TypeScript 严格模式
+- **组件模式**: 函数式组件 + Hooks
+- **导出方式**: 通过 `index.ts` 统一导出
+- **路径引用**: 使用 `@/` 别名代替相对路径
 
 ## 样式指南
 
@@ -314,23 +329,21 @@ logger.error('API failed', error);
 - 优化 useCallback 依赖数组，避免不必要的重渲染
 - 代码分割（vendor、antd、markdown 独立 chunks）
 - 生产构建体积优化（gzip 后总计约 327 KB）
-- 🔄 消息列表使用虚拟滚动（待实现）
-- 🔄 图片懒加载（待实现）
 
 ## 部署
 
 ### 1. 独立部署
 
-\`\`\`bash
+```bash
 # 构建
 npm run build
 
 # 部署 dist/ 目录到静态服务器（Nginx、Vercel 等）
-\`\`\`
+```
 
 Nginx 配置示例：
 
-\`\`\`nginx
+```nginx
 server {
     listen 80;
     server_name your-domain.com;
@@ -350,16 +363,16 @@ server {
         proxy_cache_bypass $http_upgrade;
     }
 }
-\`\`\`
+```
 
 ### 2. 集成到 Flask
 
 将构建产物复制到 Flask 静态目录：
 
-\`\`\`bash
+```bash
 npm run build
 cp -r dist/* ../static/
-\`\`\`
+```
 
 ## 故障排查
 
@@ -379,14 +392,14 @@ cp -r dist/* ../static/
 ### 问题: Markdown 渲染错误
 
 确保安装了依赖：
-\`\`\`bash
+```bash
 npm install react-markdown rehype-highlight rehype-sanitize remark-gfm
-\`\`\`
+```
 
 ### 问题: 构建失败
 
 尝试以下步骤：
-\`\`\`bash
+```bash
 # 清理依赖重新安装
 rm -rf node_modules package-lock.json
 npm install
@@ -394,7 +407,14 @@ npm install
 # 如果是 macOS arm64 架构的 rollup 问题
 rm -rf node_modules package-lock.json
 npm install
-\`\`\`
+```
+
+## 已知问题
+
+1. **会话标题生成**: 当前使用首条消息前30个字符，可以优化为 LLM 生成更友好的标题
+2. **消息重发**: 暂未实现重新生成功能
+3. **文件上传**: UI 已预留但功能未完全实现
+4. **停止生成**: 按钮已添加但功能未实现（需要后端 SSE 支持）
 
 ## 安全性
 
@@ -406,7 +426,7 @@ npm install
 
 ## 测试
 
-\`\`\`bash
+```bash
 # 运行所有测试
 npm run test
 
@@ -418,6 +438,6 @@ npm run test:run
 
 # 测试覆盖率
 npm run test:coverage
-\`\`\`
+```
 
 测试文件位于 `src/**/__tests__/` 目录。

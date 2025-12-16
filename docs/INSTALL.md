@@ -18,10 +18,10 @@
 
 ### 1. 检查 Node.js 版本
 
-\`\`\`bash
+```bash
 node --version  # 应该 >= v18.0.0
 npm --version   # 应该 >= 9.0.0
-\`\`\`
+```
 
 如果版本过低，请先升级 Node.js：
 - 官方下载: https://nodejs.org/
@@ -29,39 +29,39 @@ npm --version   # 应该 >= 9.0.0
 
 ### 2. 进入前端目录
 
-\`\`\`bash
+```bash
 cd /Volumes/ll-data/qa-agent/frontend
-\`\`\`
+```
 
 ### 3. 安装依赖
 
 使用 npm（推荐）:
-\`\`\`bash
+```bash
 npm install
-\`\`\`
+```
 
 或使用 yarn:
-\`\`\`bash
+```bash
 yarn install
-\`\`\`
+```
 
 **预计时间**: 2-3 分钟（取决于网络速度）
 
 ### 4. 验证安装
 
-\`\`\`bash
+```bash
 npm run dev
-\`\`\`
+```
 
 如果看到以下输出，说明安装成功：
 
-\`\`\`
+```
   VITE v5.0.0  ready in xxx ms
 
   ➜  Local:   http://localhost:3000/
   ➜  Network: use --host to expose
   ➜  press h to show help
-\`\`\`
+```
 
 按 `Ctrl+C` 停止开发服务器。
 
@@ -72,47 +72,47 @@ npm run dev
 **错误**: `EACCES` 权限错误
 
 **解决**:
-\`\`\`bash
+```bash
 sudo chown -R $USER:$(id -gn $USER) ~/.npm
-\`\`\`
+```
 
 **错误**: `ERESOLVE` 依赖冲突
 
 **解决**:
-\`\`\`bash
+```bash
 npm install --legacy-peer-deps
-\`\`\`
+```
 
 ### Q2: Node.js 版本过低
 
 **解决**: 使用 nvm 管理 Node.js 版本
 
-\`\`\`bash
+```bash
 # 安装 nvm
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
 
 # 安装 Node.js 18
 nvm install 18
 nvm use 18
-\`\`\`
+```
 
 ### Q3: 端口 3000 被占用
 
 **解决**: 修改 `vite.config.ts` 中的端口
 
-\`\`\`typescript
+```typescript
 export default defineConfig({
   server: {
     port: 3001, // 改为其他端口
   },
 });
-\`\`\`
+```
 
 ### Q4: 网络慢，下载缓慢
 
 **解决**: 使用国内镜像
 
-\`\`\`bash
+```bash
 # 使用淘宝镜像
 npm config set registry https://registry.npmmirror.com
 
@@ -121,7 +121,7 @@ npm install
 
 # 恢复官方源（可选）
 npm config set registry https://registry.npmjs.org
-\`\`\`
+```
 
 ## 依赖说明
 
@@ -160,16 +160,16 @@ npm config set registry https://registry.npmjs.org
 ## 下一步
 
 1. **启动后端服务**
-   \`\`\`bash
+   ```bash
    cd ..
    python app.py
-   \`\`\`
+   ```
 
 2. **启动前端开发服务器**
-   \`\`\`bash
+   ```bash
    cd frontend
    npm run dev
-   \`\`\`
+   ```
 
 3. **开始开发**
    - 阅读 [README.md](./README.md) 了解项目功能
@@ -180,7 +180,7 @@ npm config set registry https://registry.npmjs.org
 
 如需完全卸载：
 
-\`\`\`bash
+```bash
 # 删除 node_modules
 rm -rf node_modules
 
@@ -189,7 +189,7 @@ rm package-lock.json
 
 # 删除构建产物
 rm -rf dist
-\`\`\`
+```
 
 ## 获取帮助
 
