@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-QA Agent Frontend (电厂智能问答系统) - A modern ChatGPT-like interface for an intelligent power plant Q&A system built with React 18, TypeScript, Vite 5, and Ant Design 5.
+QA Agent Frontend (智能问答系统) - A modern ChatGPT-like interface for an intelligent power plant Q&A system built with React 18, TypeScript, Vite 5, and Ant Design 5.
 
 ## Common Commands
 

@@ -1,6 +1,6 @@
 # QA Agent Frontend
 
-电厂智能问答系统 - 前端项目
+智能问答系统 - 前端项目
 
 基于 React + TypeScript + Ant Design 构建的现代化聊天界面。
 
@@ -148,7 +148,7 @@ VITE_API_BASE_URL=http://192.168.50.50:5000
 VITE_CHAT_ENDPOINT=/api/react_query
 
 # 应用配置
-VITE_APP_TITLE=电厂智能问答系统 [开发]
+VITE_APP_TITLE=智能问答系统 [开发]
 
 # 日志级别
 VITE_LOG_LEVEL=debug
@@ -167,7 +167,7 @@ VITE_API_BASE_URL=/api
 VITE_CHAT_ENDPOINT=/react_query
 
 # 应用配置
-VITE_APP_TITLE=电厂智能问答系统
+VITE_APP_TITLE=智能问答系统
 
 # 日志级别
 VITE_LOG_LEVEL=error
