@@ -171,7 +171,7 @@ VITE_ENABLE_MOCK=false
 VITE_API_BASE_URL=/api
 
 # 对话接口路径（会与 base URL 拼接）
-VITE_CHAT_ENDPOINT=/react_query
+VITE_CHAT_ENDPOINT=/api/react_query
 
 # 应用配置
 VITE_APP_TITLE=智能问答系统
