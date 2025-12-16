@@ -149,7 +149,7 @@ frontend/
 
 ```env
 # API配置
-VITE_API_BASE_URL=http://192.168.50.50:5000
+VITE_API_BASE_URL=http://192.168.50.11:8006/api/
 
 # 对话接口路径（会与 base URL 拼接）
 VITE_CHAT_ENDPOINT=/api/react_query

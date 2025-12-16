@@ -330,7 +330,7 @@ export default defineConfig(({ mode }) => {
 **文件**: `.env.development`
 ```env
 # API配置
-VITE_API_BASE_URL=http://192.168.50.50:5000
+VITE_API_BASE_URL=http://192.168.50.11:8006/api/
 
 # 应用配置
 VITE_APP_TITLE=智能问答系统 [开发]
