@@ -2,9 +2,9 @@ module.exports = {
   apps: [
     {
       name: 'qa-frontend-dev',
-      script: 'npm',
-      args: 'run dev',
-      interpreter: 'none',  // 关键：告诉 PM2 不要用 node 解释器
+      // 直接运行 vite - 跨平台兼容
+      script: 'node',
+      args: './node_modules/vite/bin/vite.js',
       env: {
         NODE_ENV: 'development'
       },
