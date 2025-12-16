@@ -2,7 +2,7 @@
  * 消息项组件
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Avatar, Badge, Tooltip, Space } from 'antd';
 import { UserOutlined, RobotOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { Message } from '@/types';
@@ -14,29 +14,36 @@ interface MessageItemProps {
   message: Message;
 }
 
-export const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
-  const isUser = message.role === 'user';
-  const isError = !!message.error;
+export const MessageItem = React.memo<MessageItemProps>(
+  ({ message }) => {
+    const isUser = message.role === 'user';
+    const isError = !!message.error;
 
-  return (
-    <div className={`${styles.container} ${isUser ? styles.user : styles.assistant}`}>
-      <div className={styles.avatar}>
-        <Avatar
-          icon={isUser ? <UserOutlined /> : <RobotOutlined />}
-          style={{
-            backgroundColor: isUser ? '#1890ff' : '#52c41a',
-          }}
-        />
-      </div>
+    // 使用useMemo缓存格式化时间
+    const formattedTime = useMemo(
+      () => formatTime(message.timestamp, 'HH:mm:ss'),
+      [message.timestamp]
+    );
 
-      <div className={styles.content}>
-        <div className={styles.header}>
-          <span className={styles.role}>
-            {isUser ? '我' : 'AI 助手'}
-          </span>
-          <span className={styles.time}>
-            {formatTime(message.timestamp, 'HH:mm:ss')}
-          </span>
+    return (
+      <div className={`${styles.container} ${isUser ? styles.user : styles.assistant}`}>
+        <div className={styles.avatar}>
+          <Avatar
+            icon={isUser ? <UserOutlined /> : <RobotOutlined />}
+            style={{
+              backgroundColor: isUser ? '#1890ff' : '#52c41a',
+            }}
+          />
+        </div>
+
+        <div className={styles.content}>
+          <div className={styles.header}>
+            <span className={styles.role}>
+              {isUser ? '我' : 'AI 助手'}
+            </span>
+            <span className={styles.time}>
+              {formattedTime}
+            </span>
         </div>
 
         <div className={styles.messageBody}>
@@ -81,6 +88,11 @@ export const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
       </div>
     </div>
   );
-};
+  },
+  (prev, next) =>
+    prev.message.id === next.message.id &&
+    prev.message.content === next.message.content &&
+    prev.message.isLoading === next.message.isLoading
+);
 
 export default MessageItem;

@@ -8,6 +8,9 @@ import logger from './logger';
 
 const STORAGE_KEY = config.session.storageKey;
 
+// 防抖保存的定时器
+let saveTimeout: ReturnType<typeof setTimeout> | null = null;
+
 export const sessionStorage = {
   /**
    * 保存会话列表
@@ -72,6 +75,24 @@ export const sessionStorage = {
       sessions[index] = { ...sessions[index], ...updates };
       this.save(sessions);
     }
+  },
+
+  /**
+   * 防抖保存（延迟保存，适用于高频更新）
+   */
+  saveLater(sessions: Session[], delay = 1000): void {
+    if (saveTimeout) clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => {
+      this.save(sessions);
+    }, delay);
+  },
+
+  /**
+   * 立即保存（取消防抖，适用于关键操作）
+   */
+  saveImmediate(sessions: Session[]): void {
+    if (saveTimeout) clearTimeout(saveTimeout);
+    this.save(sessions);
   },
 };
 

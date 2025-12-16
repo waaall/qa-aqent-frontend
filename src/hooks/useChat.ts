@@ -12,7 +12,7 @@ import { generateSessionTitle } from '@/utils/helpers';
 import logger from '@/utils/logger';
 
 export function useChat() {
-  const { messages, addMessage, updateMessage, removeMessage, setLoading, isLoading } =
+  const { messages, addMessage, removeMessage, setLoading, isLoading } =
     useChatStore();
   const { currentSessionId, updateSession } = useSessionStore();
 
@@ -29,7 +29,7 @@ export function useChat() {
       }
 
       // 1. 添加用户消息
-      const userMessage = addMessage({
+      addMessage({
         role: 'user',
         content: content.trim(),
       });
@@ -74,11 +74,15 @@ export function useChat() {
 
         // 5. 更新会话信息
         if (response.session_id) {
-          const isFirstMessage = messages.length === 1; // 只有用户消息
+          // 基于 currentSessionId 判断是否为首条消息（更可靠）
+          const isFirstMessage = !currentSessionId;
+
+          // 使用 getState() 获取当前消息数量，避免依赖 messages
+          const currentMessages = useChatStore.getState().messages;
 
           updateSession(response.session_id, {
             last_accessed: Date.now(),
-            message_count: messages.length + 2, // +user +assistant
+            message_count: currentMessages.length, // 当前消息总数
             ...(isFirstMessage && {
               title: generateSessionTitle(content.trim()),
             }),
@@ -105,10 +109,8 @@ export function useChat() {
     },
     [
       currentSessionId,
-      messages,
       isLoading,
       addMessage,
-      updateMessage,
       removeMessage,
       setLoading,
       updateSession,

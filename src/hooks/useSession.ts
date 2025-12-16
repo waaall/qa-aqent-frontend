@@ -70,8 +70,9 @@ export function useSession() {
         // 加载会话历史
         const response = await chatApi.getSessionHistory(sessionId);
 
+        // 使用时间戳+索引生成唯一ID，避免重新加载时ID冲突
         const messages: Message[] = response.history.map((item, index) => ({
-          id: `${sessionId}-${index}`,
+          id: `${sessionId}-${item.timestamp || Date.now()}-${index}`,
           role: item.role as 'user' | 'assistant',
           content: item.content,
           timestamp: item.timestamp,

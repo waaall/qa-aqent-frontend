@@ -12,6 +12,7 @@ import {
 import config from '@/config';
 import { systemApi } from '@/services';
 import { HealthResponse } from '@/types';
+import logger from '@/utils/logger';
 import styles from './Header.module.css';
 
 export const Header: React.FC = () => {
@@ -26,7 +27,7 @@ export const Header: React.FC = () => {
       setHealthData(data);
       setHealthModalOpen(true);
     } catch (error) {
-      console.error('Failed to check health', error);
+      logger.error('Failed to check health', error);
     } finally {
       setLoading(false);
     }

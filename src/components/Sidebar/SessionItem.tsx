@@ -3,7 +3,7 @@
  */
 
 import React, { useState } from 'react';
-import { Button, Popconfirm, Tooltip } from 'antd';
+import { Button, Popconfirm } from 'antd';
 import {
   MessageOutlined,
   DeleteOutlined,

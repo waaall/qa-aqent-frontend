@@ -6,33 +6,37 @@
 
 ## 技术栈
 
-- **框架**: React 18 + TypeScript
-- **构建工具**: Vite 5
-- **UI 库**: Ant Design 5
-- **状态管理**: Zustand
+- **框架**: React 19 + TypeScript
+- **构建工具**: Vite 7
+- **UI 库**: Ant Design 6
+- **状态管理**: Zustand 5
 - **HTTP 客户端**: Axios + TanStack Query (React Query)
-- **Markdown 渲染**: react-markdown + rehype-highlight
+- **Markdown 渲染**: react-markdown + rehype-sanitize + rehype-highlight
+- **测试框架**: Vitest + Testing Library
+- **代码格式化**: Prettier + ESLint
 - **样式方案**: CSS Modules
 
 ## 功能特性
 
-- ✅ 现代化聊天界面（类似 ChatGPT）
-- ✅ 会话管理（创建、切换、删除）
-- ✅ 多轮对话支持
-- ✅ Markdown 消息渲染（支持代码高亮、表格等）
-- ✅ 数据源标签显示（知识库、SQL、API、对话）
-- ✅ 实时加载状态和错误处理
-- ✅ 自动滚动到最新消息
-- ✅ 响应式布局（支持移动端）
-- ✅ 本地会话持久化
-- ✅ 生产级日志系统
+- 现代化聊天界面（类似 ChatGPT）
+- 会话管理（创建、切换、删除）
+- 多轮对话支持
+- Markdown 消息渲染（支持代码高亮、表格等）
+- 数据源标签显示（知识库、SQL、API、对话）
+- 实时加载状态和错误处理
+- 自动滚动到最新消息
+- 响应式布局（支持移动端）
+- 本地会话持久化（防抖优化）
+- 生产级日志系统
+- XSS 防护和输入验证
+- React.memo 性能优化
 
 ## 快速开始
 
 ### 环境要求
 
 - Node.js 18+
-- npm 或 yarn
+- npm 或 yarn 或 pnpm
 
 ### 安装依赖
 
@@ -46,9 +50,18 @@ npm install
 \`\`\`bash
 # 启动开发服务器（默认: http://localhost:3000）
 npm run dev
+
+# 运行 ESLint 检查
+npm run lint
+
+# 自动修复 ESLint 问题
+npm run lint:fix
+
+# 格式化代码
+npm run format
 \`\`\`
 
-开发服务器会自动代理 `/api` 请求到后端（`http://localhost:5000`）
+开发服务器会自动代理 `/api` 请求到后端（配置在 `.env.development`）
 
 ### 生产构建
 
@@ -58,9 +71,15 @@ npm run build
 
 # 预览生产构建
 npm run preview
+
+# 运行测试
+npm run test
+
+# 测试覆盖率
+npm run test:coverage
 \`\`\`
 
-构建产物位于 `dist/` 目录。
+构建产物位于 `dist/` 目录，代码自动分割为多个 chunks 以优化加载性能。
 
 ## 项目结构
 
@@ -101,7 +120,8 @@ frontend/
 │   │   └── api.ts
 │   ├── utils/              # 工具函数
 │   │   ├── logger.ts                  # 日志工具
-│   │   ├── storage.ts                 # 本地存储
+│   │   ├── storage.ts                 # 本地存储（防抖优化）
+│   │   ├── validation.ts              # 输入验证
 │   │   └── helpers.ts                 # 辅助函数
 │   ├── config/             # 配置
 │   │   └── index.ts
@@ -121,16 +141,29 @@ frontend/
 ### 开发环境 (`.env.development`)
 
 \`\`\`env
-VITE_API_BASE_URL=http://localhost:5000/api
-VITE_APP_TITLE=电厂智能问答系统
+# API配置
+VITE_API_BASE_URL=http://192.168.50.50:5000
+
+# 应用配置
+VITE_APP_TITLE=电厂智能问答系统 [开发]
+
+# 日志级别
 VITE_LOG_LEVEL=debug
+
+# 功能开关
+VITE_ENABLE_MOCK=false
 \`\`\`
 
 ### 生产环境 (`.env.production`)
 
 \`\`\`env
+# API配置 - 生产环境使用相对路径
 VITE_API_BASE_URL=/api
+
+# 应用配置
 VITE_APP_TITLE=电厂智能问答系统
+
+# 日志级别
 VITE_LOG_LEVEL=error
 \`\`\`
 
@@ -151,10 +184,12 @@ VITE_LOG_LEVEL=error
 
 ### 3. 消息渲染
 
-- 支持 Markdown 格式
+- 支持 Markdown 格式（GitHub Flavored Markdown）
 - 代码高亮（使用 highlight.js）
 - 表格渲染
 - 链接自动在新窗口打开
+- XSS 防护（使用 rehype-sanitize）
+- 仅允许安全的 URL 协议（http/https/mailto）
 
 ### 4. 数据源显示
 
@@ -266,10 +301,13 @@ logger.error('API failed', error);
 
 ## 性能优化
 
-- 使用 React.memo 优化组件渲染
-- 消息列表使用虚拟滚动（待实现）
-- 图片懒加载
-- 代码分割（动态导入）
+- 使用 React.memo 优化核心组件渲染（MessageItem、MarkdownRenderer）
+- 防抖优化 sessionStore 本地存储写入
+- 优化 useCallback 依赖数组，避免不必要的重渲染
+- 代码分割（vendor、antd、markdown 独立 chunks）
+- 生产构建体积优化（gzip 后总计约 327 KB）
+- 🔄 消息列表使用虚拟滚动（待实现）
+- 🔄 图片懒加载（待实现）
 
 ## 部署
 
@@ -334,22 +372,45 @@ cp -r dist/* ../static/
 
 确保安装了依赖：
 \`\`\`bash
-npm install react-markdown rehype-highlight rehype-raw remark-gfm
+npm install react-markdown rehype-highlight rehype-sanitize remark-gfm
 \`\`\`
 
-## 贡献指南
+### 问题: 构建失败
 
-1. Fork 项目
-2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 开启 Pull Request
+尝试以下步骤：
+\`\`\`bash
+# 清理依赖重新安装
+rm -rf node_modules package-lock.json
+npm install
 
-## 许可证
+# 如果是 macOS arm64 架构的 rollup 问题
+rm -rf node_modules package-lock.json
+npm install
+\`\`\`
 
-MIT License
+## 安全性
 
-## 联系方式
+- XSS 防护：使用 `rehype-sanitize` 过滤恶意 HTML
+- URL 验证：仅允许 http/https/mailto 协议
+- 输入验证：限制输入长度（10,000 字符）
+- 依赖安全：定期更新依赖，无已知漏洞
+- 错误处理：避免敏感信息泄露
 
-- 项目地址: [GitHub](https://github.com/your-repo/qa-agent)
-- 问题反馈: [Issues](https://github.com/your-repo/qa-agent/issues)
+## 测试
+
+\`\`\`bash
+# 运行所有测试
+npm run test
+
+# 交互式测试 UI
+npm run test:ui
+
+# 单次运行测试
+npm run test:run
+
+# 测试覆盖率
+npm run test:coverage
+\`\`\`
+
+测试文件位于 `src/**/__tests__/` 目录。
+

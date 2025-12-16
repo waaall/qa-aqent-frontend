@@ -100,7 +100,7 @@ const [isOpen, setIsOpen] = useState(false);
 // ❌ 不推荐
 axios.post('/api/chat', data);
 
-// ✅ 推荐
+// 推荐
 import { chatApi } from '@/services';
 chatApi.sendMessage(data);
 \`\`\`

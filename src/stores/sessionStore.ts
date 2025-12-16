@@ -31,7 +31,8 @@ export const useSessionStore = create<SessionState>((set, get) => ({
   addSession: (session) => {
     const sessions = [session, ...get().sessions];
     set({ sessions, currentSessionId: session.session_id });
-    sessionStorage.save(sessions);
+    // 添加会话是关键操作，立即保存
+    sessionStorage.saveImmediate(sessions);
   },
 
   updateSession: (sessionId, updates) => {
@@ -39,7 +40,8 @@ export const useSessionStore = create<SessionState>((set, get) => ({
       s.session_id === sessionId ? { ...s, ...updates } : s
     );
     set({ sessions });
-    sessionStorage.save(sessions);
+    // 更新会话使用防抖保存，减少高频写入
+    sessionStorage.saveLater(sessions, 1000);
   },
 
   removeSession: (sessionId) => {
@@ -51,7 +53,8 @@ export const useSessionStore = create<SessionState>((set, get) => ({
       currentSessionId: currentSessionId === sessionId ? null : currentSessionId,
     });
 
-    sessionStorage.save(sessions);
+    // 删除会话是关键操作，立即保存
+    sessionStorage.saveImmediate(sessions);
   },
 
   setCurrentSession: (sessionId) => {

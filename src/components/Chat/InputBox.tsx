@@ -3,9 +3,10 @@
  */
 
 import React, { useState, KeyboardEvent } from 'react';
-import { Input, Button, Space, Tooltip } from 'antd';
+import { Input, Button, Space, Tooltip, message } from 'antd';
 import { SendOutlined, StopOutlined } from '@ant-design/icons';
 import config from '@/config';
+import { validateUserInput } from '@/utils/validation';
 import styles from './InputBox.module.css';
 
 const { TextArea } = Input;
@@ -28,17 +29,19 @@ export const InputBox: React.FC<InputBoxProps> = ({ onSend, disabled, loading })
   };
 
   const handleSend = () => {
-    const trimmedInput = input.trim();
+    const cleanedValue = validateUserInput(input);
 
-    if (!trimmedInput) {
+    if (!cleanedValue) {
+      message.warning('请输入有效内容');
       return;
     }
 
-    if (trimmedInput.length > config.ui.maxMessageLength) {
+    if (cleanedValue.length > config.ui.maxMessageLength) {
+      message.warning(`消息长度不能超过 ${config.ui.maxMessageLength} 字符`);
       return;
     }
 
-    onSend(trimmedInput);
+    onSend(cleanedValue);
     setInput('');
   };
 
