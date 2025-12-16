@@ -52,11 +52,11 @@ npm install
 # npm run dev #前台运行
 
 # pm2后台运行  # npm i -g pm2 安装pm2
-pm2 start npm --name dev -- run dev
-pm2 logs dev
+pm2 start ecosystem.config.js
+pm2 logs qa-frontend-dev
 
-# pm2 stop dev    # 停止运行
-# pm2 delete dev
+# pm2 stop qa-frontend-dev
+# pm2 delete qa-frontend-dev
 
 # 运行 ESLint 检查
 npm run lint
