@@ -10,8 +10,8 @@ export const config = {
 
   // 超时配置
   timeout: {
-    default: 120000, // 2分钟
-    upload: 300000,  // 5分钟
+    default: 900000, // 15分钟
+    upload: 900000,  // 15分钟
   },
 
   // 会话配置
