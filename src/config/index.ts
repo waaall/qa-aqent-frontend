@@ -6,6 +6,7 @@ export const config = {
   apiBaseUrl: import.meta.env.VITE_API_BASE_URL || '/api',
   appTitle: import.meta.env.VITE_APP_TITLE || '电厂智能问答系统',
   logLevel: import.meta.env.VITE_LOG_LEVEL || 'info',
+  chatEndpoint: import.meta.env.VITE_CHAT_ENDPOINT || '/chat',
 
   // 超时配置
   timeout: {

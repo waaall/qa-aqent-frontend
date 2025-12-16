@@ -144,6 +144,9 @@ frontend/
 # API配置
 VITE_API_BASE_URL=http://192.168.50.50:5000
 
+# 对话接口路径（会与 base URL 拼接）
+VITE_CHAT_ENDPOINT=/api/react_query
+
 # 应用配置
 VITE_APP_TITLE=电厂智能问答系统 [开发]
 
@@ -159,6 +162,9 @@ VITE_ENABLE_MOCK=false
 \`\`\`env
 # API配置 - 生产环境使用相对路径
 VITE_API_BASE_URL=/api
+
+# 对话接口路径（会与 base URL 拼接）
+VITE_CHAT_ENDPOINT=/react_query
 
 # 应用配置
 VITE_APP_TITLE=电厂智能问答系统
@@ -212,8 +218,10 @@ VITE_LOG_LEVEL=error
 
 ### 聊天接口
 
+使用 `VITE_CHAT_ENDPOINT` 配置（与 `VITE_API_BASE_URL` 拼接）。
+
 \`\`\`typescript
-POST /api/chat
+POST /api/react_query
 {
   "query": "用户问题",
   "session_id": "会话ID（可选）",
@@ -413,4 +421,3 @@ npm run test:coverage
 \`\`\`
 
 测试文件位于 `src/**/__tests__/` 目录。
-

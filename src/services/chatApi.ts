@@ -9,6 +9,7 @@ import {
   CreateSessionResponse,
   SessionHistoryResponse,
 } from '@/types';
+import config from '@/config';
 import logger from '@/utils/logger';
 
 export const chatApi = {
@@ -17,7 +18,7 @@ export const chatApi = {
    */
   async sendMessage(request: ChatRequest): Promise<ChatResponse> {
     logger.info('Sending chat message', { query: request.query });
-    return apiClient.post<ChatResponse>('/chat', request);
+    return apiClient.post<ChatResponse>(config.chatEndpoint, request);
   },
 
   /**
