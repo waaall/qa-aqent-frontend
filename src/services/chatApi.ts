@@ -33,7 +33,8 @@ export const chatApi = {
   async streamMessage(
     request: ChatRequest,
     abortSignal?: AbortSignal,
-    onEvent?: (event: ThinkingEvent) => void
+    onEvent?: (event: ThinkingEvent) => void,
+    onConnected?: () => void
   ): Promise<void> {
     logger.info('Starting SSE stream', { query: request.query });
 
@@ -62,9 +63,20 @@ export const chatApi = {
         throw new Error('Response body is empty');
       }
 
+      // 已建立连接，通知上层更新状态
+      onConnected?.();
+
+      let eventCount = 0;
+
       // 读取 SSE 流
       for await (const event of readSseStream(response)) {
+        eventCount += 1;
         onEvent?.(event);
+      }
+
+      // 没有任何事件，视为异常
+      if (eventCount === 0) {
+        throw new Error('No SSE events received');
       }
 
       logger.info('SSE stream completed');

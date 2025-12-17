@@ -21,6 +21,10 @@ export function useThinkingStream(options: UseThinkingStreamOptions = {}) {
   const { setStreamStatus, setAbortController, abortStream } = useChatStore();
   const abortControllerRef = useRef<AbortController | null>(null);
   const heartbeatTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const getStreamStatus = useCallback(
+    () => useChatStore.getState().streamStatus,
+    []
+  );
 
   // 重置心跳计时器
   const resetHeartbeat = useCallback(() => {
@@ -68,8 +72,8 @@ export function useThinkingStream(options: UseThinkingStreamOptions = {}) {
               return;
             }
 
-            // 更新状态
-            if (event.type === 'meta.start') {
+            // 只要收到任意事件，认为已经建立流
+            if (getStreamStatus() === 'connecting') {
               setStreamStatus('streaming');
             }
 
@@ -85,6 +89,10 @@ export function useThinkingStream(options: UseThinkingStreamOptions = {}) {
             if (event.type === 'error') {
               options.onError?.(new Error(event.content));
             }
+          },
+          () => {
+            // fetch 已建立，提前进入 streaming 状态，避免长时间停留在 connecting
+            setStreamStatus('streaming');
           }
         );
 
@@ -98,6 +106,8 @@ export function useThinkingStream(options: UseThinkingStreamOptions = {}) {
         } else {
           setStreamStatus('error');
           options.onError?.(error as Error);
+          // 让上层判断是否降级
+          throw error;
         }
       } finally {
         clearHeartbeat();
