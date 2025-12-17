@@ -7,18 +7,37 @@ import { Input, Button, Space, Tooltip, message } from 'antd';
 import { SendOutlined, StopOutlined } from '@ant-design/icons';
 import config from '@/config';
 import { validateUserInput } from '@/utils/validation';
+import { StreamStatus } from '@/types/thinking';
+import { LoadingDots } from '@/components/Common';
 import styles from './InputBox.module.css';
 
 const { TextArea } = Input;
 
 interface InputBoxProps {
   onSend: (message: string) => void;
+  onStop?: () => void;
   disabled?: boolean;
   loading?: boolean;
+  streamStatus?: StreamStatus;
 }
 
-export const InputBox: React.FC<InputBoxProps> = ({ onSend, disabled, loading }) => {
+export const InputBox: React.FC<InputBoxProps> = ({
+  onSend,
+  onStop,
+  disabled,
+  loading,
+  streamStatus = 'idle',
+}) => {
   const [input, setInput] = useState('');
+
+  // 流式状态判断
+  const isStreaming = streamStatus === 'streaming' || streamStatus === 'connecting';
+
+  // 停止生成处理
+  const handleStop = () => {
+    onStop?.();
+    message.info('已停止生成');
+  };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     // Ctrl/Cmd + Enter 发送消息
@@ -45,7 +64,7 @@ export const InputBox: React.FC<InputBoxProps> = ({ onSend, disabled, loading })
     setInput('');
   };
 
-  const isDisabled = disabled || loading;
+  const isDisabled = disabled || loading || isStreaming;
   const canSend = !isDisabled && input.trim().length > 0;
 
   return (
@@ -56,7 +75,9 @@ export const InputBox: React.FC<InputBoxProps> = ({ onSend, disabled, loading })
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={
-            loading
+            isStreaming
+              ? 'AI正在思考中...'
+              : loading
               ? '正在处理中...'
               : '输入您的问题... (Ctrl/Cmd + Enter 发送)'
           }
@@ -70,13 +91,13 @@ export const InputBox: React.FC<InputBoxProps> = ({ onSend, disabled, loading })
             {input.length}/{config.ui.maxMessageLength}
           </span>
 
-          {loading ? (
-            <Tooltip title="停止生成（暂未实现）">
+          {isStreaming ? (
+            <Tooltip title="停止生成">
               <Button
                 type="text"
                 danger
                 icon={<StopOutlined />}
-                disabled
+                onClick={handleStop}
               >
                 停止
               </Button>
@@ -95,6 +116,13 @@ export const InputBox: React.FC<InputBoxProps> = ({ onSend, disabled, loading })
           )}
         </Space>
       </div>
+
+      {/* 流式连接状态提示 */}
+      {streamStatus === 'connecting' && (
+        <div className={styles.statusHint}>
+          <LoadingDots /> 正在建立思考流连接...
+        </div>
+      )}
 
       <div className={styles.hint}>
         提示: 您可以询问电厂运维相关问题，获取实时数据、历史记录或知识库信息

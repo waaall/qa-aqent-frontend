@@ -5,3 +5,4 @@
 export * from './message';
 export * from './session';
 export * from './api';
+export * from './thinking';

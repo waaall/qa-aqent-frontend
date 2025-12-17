@@ -9,6 +9,7 @@ export interface ChatRequest {
   session_id?: string;
   query_type?: QueryType;
   create_session?: boolean;
+  stream_thoughts?: boolean;  // 是否启用思考流
 }
 
 export interface ChatResponse {

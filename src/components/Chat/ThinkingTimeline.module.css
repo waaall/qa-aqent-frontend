@@ -1,0 +1,47 @@
+.collapse {
+  margin: 12px 0;
+  background: #fafafa;
+  border: 1px solid #f0f0f0;
+  border-radius: 4px;
+}
+
+.timeline {
+  margin-top: 12px;
+}
+
+.timelineItem {
+  padding-bottom: 8px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.time {
+  font-size: 12px;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.content {
+  color: rgba(0, 0, 0, 0.88);
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+.extra {
+  margin-top: 8px;
+}
+
+.preview {
+  margin-top: 4px;
+  padding: 8px;
+  background: #f5f5f5;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: 'Courier New', Courier, monospace;
+  white-space: pre-wrap;
+  word-break: break-all;
+}

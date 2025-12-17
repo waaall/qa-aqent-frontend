@@ -29,6 +29,8 @@
 - 本地会话持久化（防抖优化）
 - 生产级日志系统
 - XSS 防护和输入验证
+- 思考流（SSE）展示：路由决策、工具调用/结果、LLM 思考过程流式呈现
+- 停止生成与降级：支持中断 SSE，失败自动回退到一次性响应
 - React.memo 性能优化
 
 ## 快速开始
@@ -162,6 +164,13 @@ VITE_LOG_LEVEL=debug
 
 # 功能开关
 VITE_ENABLE_MOCK=false
+
+# 思考流配置
+VITE_ENABLE_THINKING_STREAM=true
+VITE_STREAM_ENDPOINT=/api/react_stream
+VITE_FALLBACK_ENDPOINT=/api/react_query
+VITE_STREAM_HEARTBEAT_TIMEOUT=30000
+VITE_THINKING_PREVIEW_MAX_LENGTH=500
 ```
 
 ### 生产环境 (`.env.production`)
@@ -178,6 +187,13 @@ VITE_APP_TITLE=智能问答系统
 
 # 日志级别
 VITE_LOG_LEVEL=error
+
+# 思考流配置
+VITE_ENABLE_THINKING_STREAM=true
+VITE_STREAM_ENDPOINT=/api/react_stream
+VITE_FALLBACK_ENDPOINT=/api/react_query
+VITE_STREAM_HEARTBEAT_TIMEOUT=30000
+VITE_THINKING_PREVIEW_MAX_LENGTH=500
 ```
 
 ## 核心功能说明
@@ -244,6 +260,14 @@ GET /api/session/:id/history      # 获取历史
 DELETE /api/session/:id            # 删除会话
 POST /api/session/:id/refresh     # 刷新会话
 ```
+
+### 思考流（SSE）
+
+- 端点：默认 `VITE_STREAM_ENDPOINT=/api/react_stream`，与 `VITE_API_BASE_URL` 拼接。
+- 请求体：与 `/api/react_query` 相同，额外支持 `stream_thoughts=true`。
+- 事件类型：`meta.start`、`router.decision`、`memory.inject`、`thought`、`tool_call`、`tool_result`、`fallback`、`final`、`error`、`heartbeat`。
+- 前端行为：实时展示思考轨迹，超时/错误自动降级到一次性响应；“停止”按钮通过 AbortController 终止流。
+- 长内容截断：工具结果 `preview` 按 `VITE_THINKING_PREVIEW_MAX_LENGTH` 截断，避免撑爆 UI。
 
 ## 开发指南
 
@@ -414,7 +438,7 @@ npm install
 1. **会话标题生成**: 当前使用首条消息前30个字符，可以优化为 LLM 生成更友好的标题
 2. **消息重发**: 暂未实现重新生成功能
 3. **文件上传**: UI 已预留但功能未完全实现
-4. **停止生成**: 按钮已添加但功能未实现（需要后端 SSE 支持）
+4. **部分浏览器兼容**: 老旧浏览器或特定代理环境下 SSE 可能被拦截，无法展示思考流，会自动降级为一次性响应
 
 ## 安全性
 

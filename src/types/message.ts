@@ -20,6 +20,12 @@ export interface Message {
   metadata?: MessageMetadata;
   isLoading?: boolean;
   error?: string;
+
+  // 思考流相关字段
+  traceId?: string;                    // 追踪ID（关联思考事件）
+  streaming?: boolean;                 // 是否为流式消息
+  route?: string;                      // 路由类型
+  fallbackTriggered?: boolean;         // 是否触发兜底
 }
 
 export interface CreateMessageParams {
@@ -28,4 +34,10 @@ export interface CreateMessageParams {
   metadata?: MessageMetadata;
   isLoading?: boolean;
   error?: string;
+
+  // 思考流相关字段
+  traceId?: string;
+  streaming?: boolean;
+  route?: string;
+  fallbackTriggered?: boolean;
 }

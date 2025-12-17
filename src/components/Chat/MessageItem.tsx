@@ -8,6 +8,8 @@ import { UserOutlined, RobotOutlined, ExclamationCircleOutlined } from '@ant-des
 import { Message } from '@/types';
 import { MarkdownRenderer, SourceTag, LoadingDots } from '@/components/Common';
 import { formatTime } from '@/utils/helpers';
+import { useChatStore } from '@/stores/chatStore';
+import ThinkingTimeline from './ThinkingTimeline';
 import styles from './MessageItem.module.css';
 
 interface MessageItemProps {
@@ -18,6 +20,12 @@ export const MessageItem = React.memo<MessageItemProps>(
   ({ message }) => {
     const isUser = message.role === 'user';
     const isError = !!message.error;
+    const { thinkingEventsMap } = useChatStore();
+
+    // 获取该消息的思考事件
+    const thinkingEvents = message.traceId
+      ? thinkingEventsMap.get(message.traceId) || []
+      : [];
 
     // 使用useMemo缓存格式化时间
     const formattedTime = useMemo(
@@ -63,6 +71,22 @@ export const MessageItem = React.memo<MessageItemProps>(
             <MarkdownRenderer content={message.content} />
           )}
 
+          {/* 思考轨迹（仅助手消息） */}
+          {!isUser && thinkingEvents.length > 0 && (
+            <ThinkingTimeline
+              events={thinkingEvents}
+              defaultExpanded={message.streaming}
+            />
+          )}
+
+          {/* 流式打字动画 */}
+          {message.streaming && !message.isLoading && (
+            <div className={styles.streamingIndicator}>
+              <LoadingDots />
+              <span>正在思考...</span>
+            </div>
+          )}
+
           {/* 元数据 */}
           {!message.isLoading && !isUser && message.metadata && (
             <div className={styles.metadata}>
@@ -92,7 +116,8 @@ export const MessageItem = React.memo<MessageItemProps>(
   (prev, next) =>
     prev.message.id === next.message.id &&
     prev.message.content === next.message.content &&
-    prev.message.isLoading === next.message.isLoading
+    prev.message.isLoading === next.message.isLoading &&
+    prev.message.streaming === next.message.streaming
 );
 
 export default MessageItem;

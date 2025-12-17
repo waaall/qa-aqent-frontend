@@ -9,16 +9,74 @@ import {
   CreateSessionResponse,
   SessionHistoryResponse,
 } from '@/types';
+import { ThinkingEvent } from '@/types/thinking';
 import config from '@/config';
 import logger from '@/utils/logger';
+import { readSseStream } from '@/utils/sseParser';
+import { joinUrl } from '@/utils/urlHelper';
 
 export const chatApi = {
   /**
-   * 发送聊天消息
+   * 发送聊天消息（一次性返回）
    */
   async sendMessage(request: ChatRequest): Promise<ChatResponse> {
     logger.info('Sending chat message', { query: request.query });
     return apiClient.post<ChatResponse>(config.chatEndpoint, request);
+  },
+
+  /**
+   * 流式发送消息（SSE）
+   * @param request 聊天请求
+   * @param abortSignal 中断信号
+   * @param onEvent 事件回调
+   */
+  async streamMessage(
+    request: ChatRequest,
+    abortSignal?: AbortSignal,
+    onEvent?: (event: ThinkingEvent) => void
+  ): Promise<void> {
+    logger.info('Starting SSE stream', { query: request.query });
+
+    // 强制启用思考流
+    const streamRequest = { ...request, stream_thoughts: true };
+
+    try {
+      const url = joinUrl(config.apiBaseUrl, config.thinkingStream.endpoint);
+      const response = await fetch(
+        url,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(streamRequest),
+          signal: abortSignal,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`SSE request failed: ${response.status} ${response.statusText}`);
+      }
+
+      if (!response.body) {
+        throw new Error('Response body is empty');
+      }
+
+      // 读取 SSE 流
+      for await (const event of readSseStream(response)) {
+        onEvent?.(event);
+      }
+
+      logger.info('SSE stream completed');
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        logger.info('SSE stream aborted by user');
+        throw error; // 重新抛出以便上层处理
+      }
+
+      logger.error('SSE stream failed', error);
+      throw error;
+    }
   },
 
   /**
