@@ -49,8 +49,10 @@ export const chatApi = {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            Accept: 'text/event-stream',
           },
           body: JSON.stringify(streamRequest),
+          cache: 'no-store',
           signal: abortSignal,
         }
       );

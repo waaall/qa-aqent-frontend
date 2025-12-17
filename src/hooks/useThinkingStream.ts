@@ -14,6 +14,7 @@ interface UseThinkingStreamOptions {
   onEvent?: (event: ThinkingEvent) => void;
   onFinal?: (finalContent: string, event: ThinkingEvent) => void;
   onError?: (error: Error) => void;
+  onConnected?: () => void;
   onComplete?: () => void;
 }
 
@@ -21,6 +22,7 @@ export function useThinkingStream(options: UseThinkingStreamOptions = {}) {
   const { setStreamStatus, setAbortController, abortStream } = useChatStore();
   const abortControllerRef = useRef<AbortController | null>(null);
   const heartbeatTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const abortReasonRef = useRef<'user' | 'timeout' | null>(null);
   const getStreamStatus = useCallback(
     () => useChatStore.getState().streamStatus,
     []
@@ -34,10 +36,10 @@ export function useThinkingStream(options: UseThinkingStreamOptions = {}) {
 
     heartbeatTimerRef.current = setTimeout(() => {
       logger.warn('SSE heartbeat timeout');
-      abortStream();
-      options.onError?.(new Error('心跳超时，连接已断开'));
-    }, config.thinkingStream.heartbeatTimeout);
-  }, [abortStream, options]);
+      abortReasonRef.current = 'timeout';
+      abortControllerRef.current?.abort();
+    }, config.thinkingStream.heartbeatTimeout + 5000);
+  }, []);
 
   // 清理心跳
   const clearHeartbeat = useCallback(() => {
@@ -54,6 +56,7 @@ export function useThinkingStream(options: UseThinkingStreamOptions = {}) {
       const controller = new AbortController();
       abortControllerRef.current = controller;
       setAbortController(controller);
+      abortReasonRef.current = null;
       setStreamStatus('connecting');
 
       try {
@@ -93,6 +96,7 @@ export function useThinkingStream(options: UseThinkingStreamOptions = {}) {
           () => {
             // fetch 已建立，提前进入 streaming 状态，避免长时间停留在 connecting
             setStreamStatus('streaming');
+            options.onConnected?.();
           }
         );
 
@@ -101,11 +105,17 @@ export function useThinkingStream(options: UseThinkingStreamOptions = {}) {
         options.onComplete?.();
       } catch (error) {
         if (error instanceof Error && error.name === 'AbortError') {
-          // 用户主动中断
+          // 区分：心跳超时 vs 用户主动停止
+          if (abortReasonRef.current === 'timeout') {
+            const timeoutError = new Error('心跳超时，连接已断开');
+            setStreamStatus('error');
+            // 让上层走降级逻辑
+            throw timeoutError;
+          }
+
           setStreamStatus('aborted');
         } else {
           setStreamStatus('error');
-          options.onError?.(error as Error);
           // 让上层判断是否降级
           throw error;
         }
@@ -113,13 +123,15 @@ export function useThinkingStream(options: UseThinkingStreamOptions = {}) {
         clearHeartbeat();
         setAbortController(null);
         abortControllerRef.current = null;
+        abortReasonRef.current = null;
       }
     },
-    [setStreamStatus, setAbortController, resetHeartbeat, clearHeartbeat, options]
+    [setStreamStatus, setAbortController, resetHeartbeat, clearHeartbeat, getStreamStatus, options]
   );
 
   // 停止流
   const stopStream = useCallback(() => {
+    abortReasonRef.current = 'user';
     abortStream();
     clearHeartbeat();
   }, [abortStream, clearHeartbeat]);

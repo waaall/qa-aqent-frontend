@@ -14,6 +14,9 @@ import config from '@/config';
 import { useThinkingStream } from './useThinkingStream';
 import { isStreamSupported } from '@/utils/sseParser';
 
+const STREAM_FALLBACK_STORAGE_KEY = 'thinking_stream_fallback';
+const STREAM_FALLBACK_TTL_MS = 60_000;
+
 export function useChat() {
   const {
     messages,
@@ -31,20 +34,75 @@ export function useChat() {
 
   // 降级标志（会话级）
   const [isFallbackMode, setIsFallbackMode] = useState(() => {
-    const fallback = sessionStorage.getItem('thinking_stream_fallback');
-    return fallback === 'true' || !config.thinkingStream.enabled || !isStreamSupported();
+    if (!config.thinkingStream.enabled || !isStreamSupported()) return true;
+
+    const fallback = sessionStorage.getItem(STREAM_FALLBACK_STORAGE_KEY);
+    if (!fallback) return false;
+
+    // 兼容旧值：'true' -> 迁移为时间戳（避免永久锁死降级模式）
+    if (fallback === 'true') {
+      sessionStorage.setItem(STREAM_FALLBACK_STORAGE_KEY, String(Date.now()));
+      return true;
+    }
+
+    const ts = Number(fallback);
+    if (Number.isFinite(ts) && Date.now() - ts < STREAM_FALLBACK_TTL_MS) {
+      return true;
+    }
+
+    sessionStorage.removeItem(STREAM_FALLBACK_STORAGE_KEY);
+    return false;
   });
 
   // 流式Hook配置
   const { startStream, stopStream } = useThinkingStream({
+    onConnected: () => {
+      const { streamingMessageId: msgId, messages } = useChatStore.getState();
+      if (!msgId) return;
+
+      const currentMessage = messages.find(m => m.id === msgId);
+      if (currentMessage?.isLoading) {
+        updateMessage(msgId, { isLoading: false });
+      }
+    },
+
     onEvent: (event) => {
       const { streamingMessageId: msgId, messages } = useChatStore.getState();
       if (!msgId || !event.trace_id) return;
 
       // 同步前端和后端的 traceId（首次收到事件时）
       const currentMessage = messages.find(m => m.id === msgId);
-      if (currentMessage && currentMessage.traceId !== event.trace_id) {
-        updateMessage(msgId, { traceId: event.trace_id });
+      if (currentMessage) {
+        const updates: Partial<Message> = {};
+
+        // 流开始后允许渲染中间内容/思考轨迹
+        if (currentMessage.isLoading) {
+          updates.isLoading = false;
+        }
+
+        if (currentMessage.traceId !== event.trace_id) {
+          updates.traceId = event.trace_id;
+        }
+
+        // 如果后端不输出 thought，至少展示一个“进度文本”
+        if (!currentMessage.content?.trim()) {
+          const progressTypeSet = new Set([
+            'meta.start',
+            'router.decision',
+            'memory.inject',
+            'tool_call',
+            'tool_result',
+            'fallback',
+          ]);
+
+          if (progressTypeSet.has(event.type) && event.content?.trim()) {
+            updates.content = event.content;
+          }
+        }
+
+        if (Object.keys(updates).length > 0) {
+          updateMessage(msgId, updates);
+        }
       }
 
       // 追加思考事件
@@ -160,7 +218,18 @@ export function useChat() {
 
       try {
         // 3. 判断使用流式还是降级
-        const shouldUseStream = config.thinkingStream.enabled && !isFallbackMode;
+        let fallbackActive = isFallbackMode;
+        if (fallbackActive && config.thinkingStream.enabled && isStreamSupported()) {
+          const fallback = sessionStorage.getItem(STREAM_FALLBACK_STORAGE_KEY);
+          const ts = fallback && fallback !== 'true' ? Number(fallback) : Number.NaN;
+          if (Number.isFinite(ts) && Date.now() - ts >= STREAM_FALLBACK_TTL_MS) {
+            sessionStorage.removeItem(STREAM_FALLBACK_STORAGE_KEY);
+            setIsFallbackMode(false);
+            fallbackActive = false;
+          }
+        }
+
+        const shouldUseStream = config.thinkingStream.enabled && !fallbackActive;
 
         if (shouldUseStream) {
           logger.info('Using streaming mode');
@@ -177,7 +246,7 @@ export function useChat() {
             // SSE失败，降级
             logger.warn('Stream failed, falling back to standard mode', streamError);
             setIsFallbackMode(true);
-            sessionStorage.setItem('thinking_stream_fallback', 'true');
+            sessionStorage.setItem(STREAM_FALLBACK_STORAGE_KEY, String(Date.now()));
             antdMessage.warning('思考流连接失败，已切换为标准模式', 5);
 
             // 清理流式状态
@@ -302,11 +371,9 @@ export function useChat() {
       isLoading,
       isFallbackMode,
       addMessage,
-      updateMessage,
       removeMessage,
       setLoading,
       setStreamingMessage,
-      appendThinkingEvent,
       clearThinkingEvents,
       updateSession,
       startStream,
