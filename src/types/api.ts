@@ -26,7 +26,10 @@ export interface ChatResponse {
 export interface UploadDocumentResponse {
   success: boolean;
   message?: string;
+  task_id?: string;        // 新增：任务ID
   filename?: string;
+  file_type?: string;      // 新增：文件类型
+  status_url?: string;     // 新增：状态查询URL
   doc_count?: number;
   error?: string;
 }
@@ -74,6 +77,76 @@ export interface SessionHistoryResponse {
     metadata?: Record<string, unknown>;
   }>;
   count: number;
+}
+
+// /api/react_query 接口
+export interface ReactQueryRequest {
+  query: string;
+  reset?: boolean;
+}
+
+export interface ReactQueryResponse {
+  success: boolean;
+  answer: string;
+  raw?: string;
+  fallback_triggered?: boolean;
+  fallback_reason?: string;
+}
+
+// /upload/status/{task_id} 接口
+export interface UploadTaskStatus {
+  success: boolean;
+  task_id: string;
+  status: 'pending' | 'preprocessing' | 'indexing' | 'completed' | 'failed';
+  stage: string | null;
+  filename: string;
+  file_type: string;
+  needs_preprocessing: boolean;
+  created_at: string;
+  progress: {
+    preprocessing: 'in_progress' | 'completed' | 'failed' | 'skipped' | null;
+    indexing: 'in_progress' | 'completed' | 'failed' | null;
+  };
+  errors: Array<{
+    stage: string;
+    message: string;
+    timestamp: string;
+  }>;
+  doc_count?: number;
+  total_count?: number;
+  mode?: string;
+  completed_at?: string;
+}
+
+// /context/{session_id}/info 接口
+export interface ContextInfoResponse {
+  success: boolean;
+  context: {
+    session_id: string;
+    messages: Array<{
+      role: string;
+      content: string;
+      timestamp: number;
+      metadata?: Record<string, unknown>;
+    }>;
+    created_at?: number;
+    last_accessed?: number;
+    metadata?: Record<string, unknown>;
+  };
+}
+
+// 通用成功响应
+export interface SuccessResponse {
+  success: boolean;
+  message?: string;
+}
+
+// /database/info 接口
+export interface DatabaseInfoResponse {
+  success: boolean;
+  info: {
+    [key: string]: unknown;
+  };
 }
 
 export interface ApiError {

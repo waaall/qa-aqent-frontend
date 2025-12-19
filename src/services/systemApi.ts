@@ -4,6 +4,7 @@
 
 import apiClient from './apiClient';
 import { HealthResponse, StatsResponse } from '@/types';
+import config from '@/config';
 import logger from '@/utils/logger';
 
 export const systemApi = {
@@ -12,7 +13,7 @@ export const systemApi = {
    */
   async checkHealth(): Promise<HealthResponse> {
     logger.debug('Checking system health');
-    return apiClient.get<HealthResponse>('/health');
+    return apiClient.get<HealthResponse>(config.endpoints.health);
   },
 
   /**
@@ -20,7 +21,7 @@ export const systemApi = {
    */
   async getStats(): Promise<StatsResponse> {
     logger.debug('Fetching system stats');
-    return apiClient.get<StatsResponse>('/stats');
+    return apiClient.get<StatsResponse>(config.endpoints.stats);
   },
 };
 

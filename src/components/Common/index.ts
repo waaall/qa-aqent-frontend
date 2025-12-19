@@ -5,3 +5,4 @@
 export { MarkdownRenderer } from './MarkdownRenderer';
 export { SourceTag } from './SourceTag';
 export { LoadingDots } from './LoadingDots';
+export { UploadProgressModal } from './UploadProgressModal';

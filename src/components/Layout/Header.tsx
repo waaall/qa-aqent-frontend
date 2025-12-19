@@ -3,15 +3,16 @@
  */
 
 import React, { useState } from 'react';
-import { Button, Tooltip, Badge, Modal, Descriptions } from 'antd';
+import { Button, Tooltip, Badge, Modal, Descriptions, Upload, message } from 'antd';
 import {
   UploadOutlined,
   InfoCircleOutlined,
   SettingOutlined,
 } from '@ant-design/icons';
 import config from '@/config';
-import { systemApi } from '@/services';
-import { HealthResponse } from '@/types';
+import { systemApi, documentApi } from '@/services';
+import { HealthResponse, UploadTaskStatus } from '@/types';
+import { UploadProgressModal } from '@/components/Common';
 import logger from '@/utils/logger';
 import styles from './Header.module.css';
 
@@ -19,6 +20,10 @@ export const Header: React.FC = () => {
   const [healthModalOpen, setHealthModalOpen] = useState(false);
   const [healthData, setHealthData] = useState<HealthResponse | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // 上传相关状态
+  const [uploadModalVisible, setUploadModalVisible] = useState(false);
+  const [uploadTaskId, setUploadTaskId] = useState<string | null>(null);
 
   const handleCheckHealth = async () => {
     setLoading(true);
@@ -31,6 +36,38 @@ export const Header: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // 处理文档上传
+  const handleUpload = async (file: File) => {
+    try {
+      const response = await documentApi.upload(file);
+
+      if (response.task_id) {
+        // 异步上传，显示进度弹窗
+        setUploadTaskId(response.task_id);
+        setUploadModalVisible(true);
+      } else {
+        // 同步上传（向后兼容）
+        message.success('上传成功');
+      }
+
+      return false; // 阻止 Upload 组件默认行为
+    } catch (error) {
+      message.error('上传失败');
+      logger.error('Upload failed', error);
+      return false;
+    }
+  };
+
+  // 上传完成回调
+  const handleUploadComplete = (status: UploadTaskStatus) => {
+    if (status.status === 'completed') {
+      message.success('文档上传成功');
+    } else if (status.status === 'failed') {
+      message.error('文档上传失败');
+    }
+    setUploadModalVisible(false);
   };
 
   const getStatusBadge = (status?: string) => {
@@ -53,15 +90,20 @@ export const Header: React.FC = () => {
       </div>
 
       <div className={styles.actions}>
-        <Tooltip title="文档上传（暂未实现）">
-          <Button
-            type="text"
-            icon={<UploadOutlined />}
-            disabled
-          >
-            上传文档
-          </Button>
-        </Tooltip>
+        <Upload
+          accept=".pdf,.md"
+          beforeUpload={handleUpload}
+          showUploadList={false}
+        >
+          <Tooltip title="上传 PDF 或 Markdown 文档">
+            <Button
+              type="text"
+              icon={<UploadOutlined />}
+            >
+              上传文档
+            </Button>
+          </Tooltip>
+        </Upload>
 
         <Tooltip title="系统状态">
           <Button
@@ -122,6 +164,14 @@ export const Header: React.FC = () => {
           </Descriptions>
         )}
       </Modal>
+
+      {/* 上传进度 Modal */}
+      <UploadProgressModal
+        taskId={uploadTaskId}
+        visible={uploadModalVisible}
+        onClose={() => setUploadModalVisible(false)}
+        onComplete={handleUploadComplete}
+      />
     </div>
   );
 };

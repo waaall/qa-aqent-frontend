@@ -8,6 +8,10 @@ import {
   ChatResponse,
   CreateSessionResponse,
   SessionHistoryResponse,
+  ReactQueryRequest,
+  ReactQueryResponse,
+  ContextInfoResponse,
+  SuccessResponse,
 } from '@/types';
 import { ThinkingEvent } from '@/types/thinking';
 import config from '@/config';
@@ -21,7 +25,7 @@ export const chatApi = {
    */
   async sendMessage(request: ChatRequest): Promise<ChatResponse> {
     logger.info('Sending chat message', { query: request.query });
-    return apiClient.post<ChatResponse>(config.chatEndpoint, request);
+    return apiClient.post<ChatResponse>(config.endpoints.chat, request);
   },
 
   /**
@@ -98,33 +102,53 @@ export const chatApi = {
    */
   async createSession(): Promise<CreateSessionResponse> {
     logger.info('Creating new session');
-    return apiClient.post<CreateSessionResponse>('/session/create');
+    return apiClient.post<CreateSessionResponse>(config.endpoints.sessionCreate);
   },
 
   /**
-   * 获取会话历史
+   * 获取会话历史（已改为 Context 接口）
    */
   async getSessionHistory(sessionId: string, limit?: number): Promise<SessionHistoryResponse> {
-    logger.debug('Fetching session history', { sessionId, limit });
-    return apiClient.get<SessionHistoryResponse>(`/session/${sessionId}/history`, {
-      params: { limit },
-    });
+    logger.debug('Fetching context info', { sessionId, limit });
+    // 调用新的 /context/{sessionId}/info 接口
+    const response = await apiClient.get<ContextInfoResponse>(
+      `${config.endpoints.contextInfo}/${sessionId}/info`,
+      {
+        params: { limit },
+      }
+    );
+
+    // 转换为 SessionHistoryResponse 格式以保持向后兼容
+    return {
+      success: response.success,
+      session_id: response.context.session_id,
+      history: response.context.messages,
+      count: response.context.messages.length,
+    };
   },
 
   /**
-   * 删除会话
+   * 删除会话（已改为 Context 接口）
    */
-  async deleteSession(sessionId: string): Promise<{ success: boolean }> {
-    logger.info('Deleting session', { sessionId });
-    return apiClient.delete<{ success: boolean }>(`/session/${sessionId}`);
+  async deleteSession(sessionId: string): Promise<SuccessResponse> {
+    logger.info('Deleting session context', { sessionId });
+    return apiClient.delete<SuccessResponse>(`${config.endpoints.contextDelete}/${sessionId}`);
   },
 
   /**
-   * 刷新会话
+   * 刷新会话（已改为 Context 接口）
    */
-  async refreshSession(sessionId: string): Promise<{ success: boolean }> {
-    logger.debug('Refreshing session', { sessionId });
-    return apiClient.post<{ success: boolean }>(`/session/${sessionId}/refresh`);
+  async refreshSession(sessionId: string): Promise<SuccessResponse> {
+    logger.debug('Refreshing session context', { sessionId });
+    return apiClient.post<SuccessResponse>(`${config.endpoints.contextRefresh}/${sessionId}/refresh`);
+  },
+
+  /**
+   * 智能问答接口（带路由和兜底）
+   */
+  async sendReactQuery(request: ReactQueryRequest): Promise<ReactQueryResponse> {
+    logger.info('Sending react query', { query: request.query });
+    return apiClient.post<ReactQueryResponse>(config.endpoints.reactQuery, request);
   },
 };
 
