@@ -3,7 +3,6 @@
  */
 
 import React from 'react';
-import { Tag } from 'antd';
 import {
   DatabaseOutlined,
   CloudOutlined,
@@ -18,26 +17,26 @@ interface SourceTagProps {
 
 const engineConfig: Record<
   string,
-  { label: string; color: string; icon: React.ReactNode }
+  { label: string; className: string; icon: React.ReactNode }
 > = {
   knowledge: {
     label: '知识库',
-    color: 'blue',
+    className: 'tagBlue',
     icon: <BookOutlined />,
   },
   sql: {
     label: '数据库',
-    color: 'green',
+    className: 'tagGreen',
     icon: <DatabaseOutlined />,
   },
   api: {
     label: '实时数据',
-    color: 'orange',
+    className: 'tagOrange',
     icon: <CloudOutlined />,
   },
   general: {
     label: '对话',
-    color: 'purple',
+    className: 'tagPurple',
     icon: <MessageOutlined />,
   },
 };
@@ -52,14 +51,15 @@ export const SourceTag: React.FC<SourceTagProps> = ({ engines }) => {
         {engines.map((engine) => {
           const config = engineConfig[engine] || {
             label: engine,
-            color: 'default',
+            className: 'tagDefault',
             icon: null,
           };
 
           return (
-            <Tag key={engine} color={config.color} icon={config.icon}>
-              {config.label}
-            </Tag>
+            <div key={engine} className={`${styles.tag} ${styles[config.className]}`}>
+              {config.icon && <span className={styles.tagIcon}>{config.icon}</span>}
+              <span>{config.label}</span>
+            </div>
           );
         })}
       </div>

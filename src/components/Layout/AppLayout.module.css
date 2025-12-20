@@ -9,10 +9,17 @@
 }
 
 .sider {
-  background: #fafafa;
+  background: var(--sidebar-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-right: 1px solid var(--glass-border);
+  transition: all 300ms ease;
 }
 
 .content {
-  background: #fff;
+  background: var(--bg-glass-strong);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   overflow: hidden;
+  transition: background 300ms ease;
 }

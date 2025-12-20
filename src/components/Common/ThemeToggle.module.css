@@ -1,0 +1,14 @@
+.container {
+  width: 100%;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+}
+
+.option span {
+  font-size: 14px;
+}

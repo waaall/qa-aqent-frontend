@@ -109,6 +109,7 @@ export const InputBox: React.FC<InputBoxProps> = ({
                 icon={<SendOutlined />}
                 onClick={handleSend}
                 disabled={!canSend}
+                className={styles.sendButton}
               >
                 发送
               </Button>

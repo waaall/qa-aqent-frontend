@@ -56,6 +56,12 @@ export const config = {
     maxMessageLength: 10000,
   },
 
+  // 主题配置
+  theme: {
+    storageKey: 'qa_agent_theme_mode',
+    defaultMode: 'auto' as 'light' | 'dark' | 'auto',
+  },
+
   // 思考流配置
   thinkingStream: {
     enabled: import.meta.env.VITE_ENABLE_THINKING_STREAM === 'true',
