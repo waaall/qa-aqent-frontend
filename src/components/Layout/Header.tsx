@@ -12,7 +12,7 @@ import {
 import config from '@/config';
 import { systemApi, documentApi } from '@/services';
 import { HealthResponse, UploadTaskStatus } from '@/types';
-import { UploadProgressModal } from '@/components/Common';
+import { UploadProgressModal, SettingsModal } from '@/components/Common';
 import logger from '@/utils/logger';
 import styles from './Header.module.css';
 
@@ -24,6 +24,9 @@ export const Header: React.FC = () => {
   // 上传相关状态
   const [uploadModalVisible, setUploadModalVisible] = useState(false);
   const [uploadTaskId, setUploadTaskId] = useState<string | null>(null);
+
+  // 设置面板状态
+  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
 
   const handleCheckHealth = async () => {
     setLoading(true);
@@ -116,11 +119,11 @@ export const Header: React.FC = () => {
           </Button>
         </Tooltip>
 
-        <Tooltip title="设置（暂未实现）">
+        <Tooltip title="设置">
           <Button
             type="text"
             icon={<SettingOutlined />}
-            disabled
+            onClick={() => setSettingsModalOpen(true)}
           />
         </Tooltip>
       </div>
@@ -171,6 +174,12 @@ export const Header: React.FC = () => {
         visible={uploadModalVisible}
         onClose={() => setUploadModalVisible(false)}
         onComplete={handleUploadComplete}
+      />
+
+      {/* 设置面板 */}
+      <SettingsModal
+        open={settingsModalOpen}
+        onClose={() => setSettingsModalOpen(false)}
       />
     </div>
   );

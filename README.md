@@ -26,6 +26,7 @@
 - 实时加载状态和错误处理
 - 自动滚动到最新消息
 - 响应式布局（支持移动端）
+- 主题系统：浅色/深色/跟随系统，CSS 变量驱动
 - 本地会话持久化（防抖优化）
 - 生产级日志系统
 - XSS 防护和输入验证
@@ -122,7 +123,13 @@ frontend/
 │   │   └── useAutoScroll.ts           # 自动滚动
 │   ├── stores/             # Zustand 状态管理
 │   │   ├── chatStore.ts               # 聊天状态
-│   │   └── sessionStore.ts            # 会话状态
+│   │   ├── sessionStore.ts            # 会话状态
+│   │   └── themeStore.ts              # 主题状态
+│   ├── theme/              # 主题配置
+│   │   ├── darkTheme.ts               # 深色主题（AntD Token + CSS 变量）
+│   │   ├── lightTheme.ts              # 浅色主题（AntD Token + CSS 变量）
+│   │   ├── tokens.ts                  # 共享设计 Token
+│   │   └── index.ts                   # 主题导出
 │   ├── types/              # TypeScript 类型
 │   │   ├── message.ts
 │   │   ├── session.ts
@@ -340,11 +347,17 @@ logger.error('API failed', error);
 
 - 使用 CSS Modules 避免样式冲突
 - 遵循 Ant Design 设计规范
-- 主题色: `#1890ff`
+- 主题色由 `src/theme/lightTheme.ts` 与 `src/theme/darkTheme.ts` 中的 `colorPrimary` 控制
 - 响应式断点:
   - 移动端: `< 768px`
   - 平板: `768px - 1024px`
   - 桌面: `> 1024px`
+
+### 主题与 CSS 变量
+
+- 主题 Token：`src/theme/*Theme.ts`，在 `App.tsx` 中由 `ConfigProvider` 注入
+- CSS 变量：`lightCSSVars`/`darkCSSVars` 会写入到 `:root`，并设置 `data-theme` 用于主题特定样式
+- 发送按钮背景色：通过 `--btn-send-bg`、`--btn-send-hover-bg`、`--btn-send-active-bg` 单独配置（默认继承 `--btn-primary-*`）
 
 ## 性能优化
 

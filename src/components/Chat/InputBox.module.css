@@ -1,7 +1,10 @@
 .container {
-  border-top: 1px solid #f0f0f0;
-  background: #fff;
+  border-top: 1px solid var(--glass-border);
+  background: var(--bg-glass);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   padding: 16px 24px;
+  transition: all 300ms ease;
 }
 
 .inputWrapper {
@@ -14,7 +17,39 @@
 
 .textarea {
   resize: none !important;
-  border-radius: 8px !important;
+  border-radius: 12px !important;
+  /* 玻璃态效果 */
+  background: var(--input-bg) !important;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--input-border) !important;
+  color: var(--text-primary) !important;
+  transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.textarea::placeholder {
+  color: var(--input-placeholder) !important;
+  transition: color 250ms ease;
+}
+
+/* Focus 状态 - 精致的发光效果 */
+.textarea:focus {
+  border-color: var(--input-focus-border) !important;
+  box-shadow: var(--input-focus-shadow) !important;
+  background: var(--input-bg) !important;
+  transform: translateY(-1px);
+}
+
+/* Hover 状态 */
+.textarea:hover:not(:focus):not(:disabled) {
+  border-color: rgba(123, 158, 245, 0.3) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Disabled 状态 */
+.textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .actions {
@@ -23,9 +58,34 @@
   align-items: center;
 }
 
+.sendButton {
+  background: var(--btn-send-bg) !important;
+  border-color: var(--btn-send-border) !important;
+  color: var(--btn-send-text) !important;
+}
+
+.sendButton:hover:not(:disabled) {
+  background: var(--btn-send-hover-bg) !important;
+  border-color: var(--btn-send-border) !important;
+  color: var(--btn-send-hover-text) !important;
+}
+
+.sendButton:active:not(:disabled) {
+  background: var(--btn-send-active-bg) !important;
+  border-color: var(--btn-send-border) !important;
+}
+
+.sendButton:disabled,
+.sendButton.ant-btn-disabled {
+  background: var(--btn-disabled-bg) !important;
+  border-color: var(--btn-send-border) !important;
+  color: var(--btn-disabled-text) !important;
+}
+
 .charCount {
   font-size: 12px;
-  color: rgba(0, 0, 0, 0.45);
+  color: var(--text-tertiary);
+  transition: color 300ms ease;
 }
 
 .statusHint {
@@ -35,17 +95,36 @@
   gap: 8px;
   max-width: 900px;
   margin: 8px auto 0;
-  padding: 8px 12px;
-  background: #e6f7ff;
-  border-radius: 4px;
+  padding: 10px 16px;
+  /* 玻璃态提示框 */
+  background: var(--hint-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--hint-border);
+  border-radius: 8px;
   font-size: 12px;
-  color: #1890ff;
+  color: var(--hint-text);
+  box-shadow: var(--shadow-sm);
+  transition: all 300ms ease;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .hint {
   max-width: 900px;
   margin: 8px auto 0;
   font-size: 12px;
-  color: rgba(0, 0, 0, 0.45);
+  color: var(--text-tertiary);
   text-align: center;
+  transition: color 300ms ease;
 }

@@ -37,7 +37,7 @@ export const SessionItem: React.FC<SessionItemProps> = ({
     >
       <div className={styles.icon}>
         {isActive ? (
-          <CheckOutlined style={{ color: '#52c41a' }} />
+          <CheckOutlined className={styles.activeIcon} />
         ) : (
           <MessageOutlined />
         )}

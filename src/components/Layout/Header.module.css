@@ -1,12 +1,16 @@
 .container {
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
-  height: 64px;
-  background: #fff;
-  border-bottom: 1px solid #f0f0f0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  /* 玻璃态效果 */
+  background: var(--bg-glass-strong);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-bottom: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-sm);
+  transition: all 300ms ease;
 }
 
 .logo {
@@ -16,14 +20,28 @@
 }
 
 .title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
   margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-  color: #1890ff;
+  letter-spacing: -0.02em;
+  transition: color 300ms ease;
 }
 
 .actions {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.actions button {
+  border-radius: 12px;
+  height: 38px;
+  padding: 0 16px;
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.actions button:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }

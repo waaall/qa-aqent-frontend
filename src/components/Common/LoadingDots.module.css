@@ -8,9 +8,11 @@
 .dot {
   width: 8px;
   height: 8px;
-  background-color: #1890ff;
+  background-color: var(--loading-color);
   border-radius: 50%;
   animation: bounce 1.4s infinite ease-in-out both;
+  box-shadow: 0 0 8px var(--loading-color);
+  transition: background-color 300ms ease;
 }
 
 .dot:nth-child(1) {
