@@ -12,7 +12,7 @@ import {
 } from '@ant-design/icons';
 import { ThemeToggle } from './ThemeToggle';
 import { DocumentManagement } from './DocumentManagement';
-import { SystemStatus } from './SystemStatus';
+import { DatabaseQuery } from './DatabaseQuery';
 import config from '@/config';
 import styles from './SettingsModal.module.css';
 
@@ -61,16 +61,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
       ),
     },
     {
-      key: 'system',
+      key: 'database',
       label: (
         <span className={styles.tabLabel}>
           <DashboardOutlined />
-          系统状态
+          数据库
         </span>
       ),
       children: (
         <div className={styles.tabContent}>
-          <SystemStatus />
+          <DatabaseQuery />
         </div>
       ),
     },

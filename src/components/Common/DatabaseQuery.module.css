@@ -86,20 +86,6 @@
   min-height: 200px;
 }
 
-.descriptions :global(.ant-descriptions-item-label) {
-  font-weight: 600;
-  font-size: 12px;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  color: rgba(0, 0, 0, 0.65);
-  background: linear-gradient(135deg, rgba(24, 144, 255, 0.05), rgba(24, 144, 255, 0.02));
-}
-
-.descriptions :global(.ant-descriptions-item-content) {
-  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
-  font-size: 13px;
-}
-
 .form {
   padding: 16px;
   background: linear-gradient(135deg, rgba(24, 144, 255, 0.03), rgba(24, 144, 255, 0.01));
@@ -166,11 +152,6 @@
 
   .card {
     border-color: rgba(24, 144, 255, 0.2);
-  }
-
-  .descriptions :global(.ant-descriptions-item-label) {
-    color: rgba(255, 255, 255, 0.65);
-    background: linear-gradient(135deg, rgba(24, 144, 255, 0.1), rgba(24, 144, 255, 0.05));
   }
 
   .form {

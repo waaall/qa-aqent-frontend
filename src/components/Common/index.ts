@@ -9,5 +9,6 @@ export { UploadProgressModal } from './UploadProgressModal';
 export { ThemeToggle } from './ThemeToggle';
 export { SettingsModal } from './SettingsModal';
 export { DocumentManagement } from './DocumentManagement';
-export { SystemStatus } from './SystemStatus';
+export { DatabaseQuery } from './DatabaseQuery';
+export { SystemInfoModal } from './SystemInfoModal';
 export { UploadDocumentModal } from './UploadDocumentModal';

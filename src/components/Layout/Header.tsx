@@ -3,23 +3,22 @@
  */
 
 import React, { useState } from 'react';
-import { Button, Tooltip, Badge, Modal, Descriptions, Upload, message } from 'antd';
+import { Button, Tooltip, Upload, message } from 'antd';
 import {
   UploadOutlined,
   InfoCircleOutlined,
   SettingOutlined,
 } from '@ant-design/icons';
 import config from '@/config';
-import { systemApi, documentApi } from '@/services';
-import { HealthResponse, UploadTaskStatus } from '@/types';
-import { UploadProgressModal, SettingsModal } from '@/components/Common';
+import { documentApi } from '@/services';
+import { UploadTaskStatus } from '@/types';
+import { UploadProgressModal, SettingsModal, SystemInfoModal } from '@/components/Common';
 import logger from '@/utils/logger';
 import styles from './Header.module.css';
 
 export const Header: React.FC = () => {
-  const [healthModalOpen, setHealthModalOpen] = useState(false);
-  const [healthData, setHealthData] = useState<HealthResponse | null>(null);
-  const [loading, setLoading] = useState(false);
+  // 系统信息弹窗状态
+  const [systemInfoModalOpen, setSystemInfoModalOpen] = useState(false);
 
   // 上传相关状态
   const [uploadModalVisible, setUploadModalVisible] = useState(false);
@@ -27,19 +26,6 @@ export const Header: React.FC = () => {
 
   // 设置面板状态
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
-
-  const handleCheckHealth = async () => {
-    setLoading(true);
-    try {
-      const data = await systemApi.checkHealth();
-      setHealthData(data);
-      setHealthModalOpen(true);
-    } catch (error) {
-      logger.error('Failed to check health', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // 处理文档上传
   const handleUpload = async (file: File) => {
@@ -73,19 +59,6 @@ export const Header: React.FC = () => {
     setUploadModalVisible(false);
   };
 
-  const getStatusBadge = (status?: string) => {
-    switch (status) {
-      case 'healthy':
-        return <Badge status="success" text="正常" />;
-      case 'degraded':
-        return <Badge status="warning" text="降级" />;
-      case 'unhealthy':
-        return <Badge status="error" text="异常" />;
-      default:
-        return <Badge status="default" text="未知" />;
-    }
-  };
-
   return (
     <div className={styles.container}>
       <div className={styles.logo}>
@@ -112,8 +85,7 @@ export const Header: React.FC = () => {
           <Button
             type="text"
             icon={<InfoCircleOutlined />}
-            onClick={handleCheckHealth}
-            loading={loading}
+            onClick={() => setSystemInfoModalOpen(true)}
           >
             系统状态
           </Button>
@@ -128,45 +100,11 @@ export const Header: React.FC = () => {
         </Tooltip>
       </div>
 
-      {/* 系统状态 Modal */}
-      <Modal
-        title="系统状态"
-        open={healthModalOpen}
-        onCancel={() => setHealthModalOpen(false)}
-        footer={null}
-      >
-        {healthData && (
-          <Descriptions column={1} bordered size="small">
-            <Descriptions.Item label="系统状态">
-              {getStatusBadge(healthData.status)}
-            </Descriptions.Item>
-
-            {healthData.llm && (
-              <>
-                <Descriptions.Item label="LLM 提供商">
-                  {healthData.llm.provider || '未知'}
-                </Descriptions.Item>
-
-                <Descriptions.Item label="LLM 状态">
-                  {healthData.llm.ready ? (
-                    <Badge status="success" text="就绪" />
-                  ) : (
-                    <Badge status="error" text="未就绪" />
-                  )}
-                </Descriptions.Item>
-
-                <Descriptions.Item label="当前模型">
-                  {healthData.llm.current_model || '未知'}
-                </Descriptions.Item>
-              </>
-            )}
-
-            <Descriptions.Item label="检查时间">
-              {healthData.timestamp}
-            </Descriptions.Item>
-          </Descriptions>
-        )}
-      </Modal>
+      {/* 系统信息 Modal */}
+      <SystemInfoModal
+        open={systemInfoModalOpen}
+        onClose={() => setSystemInfoModalOpen(false)}
+      />
 
       {/* 上传进度 Modal */}
       <UploadProgressModal

@@ -46,7 +46,7 @@ export const UploadDocumentModal: React.FC<UploadDocumentModalProps> = ({
     }
 
     // 文件类型检查
-    const fileExt = `.${file.name.split('.').pop()?.toLowerCase()}`;
+    const fileExt = `.${file.name.split('.').pop()?.toLowerCase()}` as '.pdf' | '.md';
     if (!config.documents.supportedExtensions.includes(fileExt)) {
       message.error(`不支持的文件类型，仅支持：${config.documents.supportedExtensions.join('、')}`);
       return false;

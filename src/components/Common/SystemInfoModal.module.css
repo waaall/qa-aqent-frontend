@@ -1,0 +1,132 @@
+.modal :global(.ant-modal-header) {
+  background: linear-gradient(135deg, rgba(24, 144, 255, 0.08), rgba(24, 144, 255, 0.03));
+  border-bottom: 2px solid rgba(24, 144, 255, 0.15);
+}
+
+.modalTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.titleIcon {
+  font-size: 20px;
+  color: #1890ff;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+.card {
+  border-radius: 8px;
+  border: 1px solid rgba(24, 144, 255, 0.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  position: relative;
+  overflow: hidden;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #1890ff, #096dd9);
+}
+
+.card :global(.ant-card-head) {
+  background: linear-gradient(135deg, rgba(24, 144, 255, 0.05), rgba(24, 144, 255, 0.02));
+  border-bottom-color: rgba(24, 144, 255, 0.15);
+  min-height: 40px;
+  padding: 8px 16px;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.icon {
+  font-size: 16px;
+  color: #1890ff;
+}
+
+.card :global(.ant-descriptions-item-label) {
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.65);
+  background: linear-gradient(135deg, rgba(24, 144, 255, 0.04), rgba(24, 144, 255, 0.01));
+  width: 30%;
+}
+
+.card :global(.ant-descriptions-item-content) {
+  font-size: 13px;
+}
+
+.code {
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  font-size: 12px;
+  padding: 2px 6px;
+  background: rgba(24, 144, 255, 0.08);
+  border-radius: 3px;
+  color: #096dd9;
+  font-weight: 500;
+}
+
+/* 深色模式适配 */
+@media (prefers-color-scheme: dark) {
+  .modal :global(.ant-modal-header) {
+    background: linear-gradient(135deg, rgba(24, 144, 255, 0.15), rgba(24, 144, 255, 0.08));
+    border-bottom-color: rgba(24, 144, 255, 0.25);
+  }
+
+  .card {
+    border-color: rgba(24, 144, 255, 0.25);
+  }
+
+  .card :global(.ant-card-head) {
+    background: linear-gradient(135deg, rgba(24, 144, 255, 0.1), rgba(24, 144, 255, 0.05));
+    border-bottom-color: rgba(24, 144, 255, 0.25);
+  }
+
+  .card :global(.ant-descriptions-item-label) {
+    color: rgba(255, 255, 255, 0.65);
+    background: linear-gradient(135deg, rgba(24, 144, 255, 0.08), rgba(24, 144, 255, 0.03));
+  }
+
+  .code {
+    background: rgba(24, 144, 255, 0.15);
+    color: #40a9ff;
+  }
+}
