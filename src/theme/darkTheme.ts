@@ -115,6 +115,9 @@ export const darkTheme: ThemeConfig = {
       itemHoverBg: 'rgba(123, 158, 245, 0.1)',
       trackBg: 'rgba(30, 34, 51, 0.6)',
     },
+    Tooltip: {
+      colorTextLightSolid: 'rgba(255, 255, 255, 0.88)',
+    },
   },
 };
 
