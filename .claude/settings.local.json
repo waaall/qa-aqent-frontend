@@ -3,7 +3,8 @@
     "allow": [
       "Bash(npm run type-check:*)",
       "Skill(frontend-design)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(cat:*)"
     ]
   }
 }

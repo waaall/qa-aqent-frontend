@@ -59,7 +59,7 @@ const resolveTheme = (mode: ThemeMode): ThemeType => {
   return mode;
 };
 
-export const useThemeStore = create<ThemeState>((set, get) => ({
+export const useThemeStore = create<ThemeState>((set) => ({
   mode: 'auto',
   currentTheme: 'light',
   isTransitioning: false,

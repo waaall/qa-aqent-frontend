@@ -68,9 +68,6 @@ export const darkTheme: ThemeConfig = {
       colorPrimaryTextHover: '#9BB8F7',
       colorPrimaryTextActive: '#5B7DD5',
       primaryShadow: '0 2px 8px rgba(123, 158, 245, 0.3)',
-      // Hover 状态
-      colorBgContainerHover: 'rgba(123, 158, 245, 0.15)',
-      colorBorderHover: 'rgba(123, 158, 245, 0.4)',
       // Text 按钮文字颜色
       colorLink: 'rgba(255, 255, 255, 0.88)',
       colorLinkHover: 'rgba(255, 255, 255, 1)',
@@ -91,22 +88,11 @@ export const darkTheme: ThemeConfig = {
       // Hover 状态
       hoverBorderColor: 'rgba(123, 158, 245, 0.3)',
     },
-    Select: {
-      borderRadius: 12,
-      colorBgContainer: 'rgba(30, 34, 51, 0.6)',
-      colorBorder: 'rgba(255, 255, 255, 0.1)',
-      colorText: 'rgba(255, 255, 255, 0.88)',
-    },
     Modal: {
       borderRadiusLG: 16,
       paddingContentHorizontalLG: 24,
       contentBg: 'rgba(30, 34, 51, 0.95)',
       headerBg: 'rgba(38, 43, 64, 0.9)',
-    },
-    Card: {
-      borderRadiusLG: 16,
-      colorBgContainer: 'rgba(30, 34, 51, 0.6)',
-      colorBorderSecondary: 'rgba(255, 255, 255, 0.08)',
     },
     Segmented: {
       // 主题切换器配置
@@ -212,16 +198,12 @@ export const darkCSSVars = {
   '--btn-send-hover-text': 'var(--btn-primary-hover-text)',
   '--btn-send-active-bg': 'var(--btn-primary-bg)',
   '--btn-send-border': 'transparent',
-  '--btn-text-color': 'rgba(255, 255, 255, 0.88)',
-  '--btn-text-hover-bg': 'rgba(123, 158, 245, 0.15)',
   '--btn-disabled-bg': 'rgba(38, 43, 64, 0.3)',
   '--btn-disabled-text': 'rgba(255, 255, 255, 0.35)',
 
   // 状态颜色
   '--success-color': '#5ec269',
-  '--warning-color': '#faad14',
   '--error-color': '#f5576c',
-  '--info-color': '#7B9EF5',
 
   // 标签颜色（用于 SourceTag 等）
   '--tag-blue-bg': 'rgba(123, 158, 245, 0.2)',

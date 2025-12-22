@@ -61,19 +61,16 @@ export const lightTheme: ThemeConfig = {
       colorPrimaryText: '#5B8DEF',
       colorPrimaryTextHover: '#4070D9',
       colorPrimaryTextActive: '#2F5BC7',
-    },
+          },
     Input: {
       borderRadius: 12,
       controlHeight: 42,
       paddingBlock: 10,
       paddingInline: 16,
-    },
+          },
     Modal: {
       borderRadiusLG: 16,
       paddingContentHorizontalLG: 24,
-    },
-    Card: {
-      borderRadiusLG: 16,
     },
   },
 };
@@ -169,16 +166,12 @@ export const lightCSSVars = {
   '--btn-send-hover-text': 'var(--btn-primary-hover-text)',
   '--btn-send-active-bg': 'var(--btn-primary-bg)',
   '--btn-send-border': 'transparent',
-  '--btn-text-color': 'rgba(0, 0, 0, 0.88)',
-  '--btn-text-hover-bg': 'rgba(91, 141, 239, 0.08)',
   '--btn-disabled-bg': 'rgba(0, 0, 0, 0.04)',
   '--btn-disabled-text': 'rgba(0, 0, 0, 0.35)',
 
   // 状态颜色
   '--success-color': '#52c41a',
-  '--warning-color': '#faad14',
   '--error-color': '#f5576c',
-  '--info-color': '#5B8DEF',
 
   // 标签颜色（用于 SourceTag 等）
   '--tag-blue-bg': 'rgba(91, 141, 239, 0.1)',
