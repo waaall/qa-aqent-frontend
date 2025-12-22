@@ -2,7 +2,7 @@
  * 聊天核心逻辑 Hook
  */
 
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { message as antdMessage } from 'antd';
 import { useChatStore } from '@/stores/chatStore';
 import { useSessionStore } from '@/stores/sessionStore';
@@ -30,7 +30,37 @@ export function useChat() {
     appendThinkingEvent,
     clearThinkingEvents,
   } = useChatStore();
-  const { currentSessionId, updateSession } = useSessionStore();
+  const { currentSessionId } = useSessionStore();
+  const pendingSessionTitleRef = useRef<string | null>(null);
+
+  const syncSessionAfterResponse = useCallback((sessionId: string) => {
+    const sessionState = useSessionStore.getState();
+    const currentMessages = useChatStore.getState().messages;
+    const messageCount = currentMessages.length;
+    const hasSession = sessionState.sessions.some((session) => session.session_id === sessionId);
+
+    if (hasSession) {
+      sessionState.updateSession(sessionId, {
+        last_accessed: Date.now(),
+        message_count: messageCount,
+      });
+
+      if (sessionState.currentSessionId !== sessionId) {
+        sessionState.setCurrentSession(sessionId);
+      }
+    } else {
+      const title = pendingSessionTitleRef.current || '新对话';
+      sessionState.addSession({
+        session_id: sessionId,
+        title,
+        created_at: Date.now(),
+        last_accessed: Date.now(),
+        message_count: messageCount,
+      });
+    }
+
+    pendingSessionTitleRef.current = null;
+  }, []);
 
   // 降级标志（会话级）
   const [isFallbackMode, setIsFallbackMode] = useState(() => {
@@ -139,14 +169,10 @@ export function useChat() {
       setLoading(false);
 
       // 更新会话信息
-      const currentMessages = useChatStore.getState().messages;
       const sessionId = (event.extra?.turn_id as string | undefined) || event.turn_id || currentSessionId;
 
       if (sessionId) {
-        updateSession(sessionId, {
-          last_accessed: Date.now(),
-          message_count: currentMessages.length,
-        });
+        syncSessionAfterResponse(sessionId);
       }
     },
 
@@ -210,10 +236,15 @@ export function useChat() {
       setLoading(true);
       setStreamingMessage(assistantMessage.id, traceId);
 
+      const shouldResetSession = !currentSessionId;
+      if (shouldResetSession) {
+        pendingSessionTitleRef.current = generateSessionTitle(content.trim());
+      }
+
       const request = {
         query: content.trim(),
         session_id: currentSessionId || undefined,
-        create_session: !currentSessionId,
+        reset: shouldResetSession,
       };
 
       try {
@@ -279,16 +310,7 @@ export function useChat() {
 
               // 更新会话信息
               if (response.session_id) {
-                const isFirstMessage = !currentSessionId;
-                const currentMessages = useChatStore.getState().messages;
-
-                updateSession(response.session_id, {
-                  last_accessed: Date.now(),
-                  message_count: currentMessages.length,
-                  ...(isFirstMessage && {
-                    title: generateSessionTitle(content.trim()),
-                  }),
-                });
+                syncSessionAfterResponse(response.session_id);
               }
 
               setLoading(false);
@@ -336,16 +358,7 @@ export function useChat() {
 
           // 更新会话信息
           if (response.session_id) {
-            const isFirstMessage = !currentSessionId;
-            const currentMessages = useChatStore.getState().messages;
-
-            updateSession(response.session_id, {
-              last_accessed: Date.now(),
-              message_count: currentMessages.length,
-              ...(isFirstMessage && {
-                title: generateSessionTitle(content.trim()),
-              }),
-            });
+            syncSessionAfterResponse(response.session_id);
           }
 
           setLoading(false);
@@ -375,7 +388,7 @@ export function useChat() {
       setLoading,
       setStreamingMessage,
       clearThinkingEvents,
-      updateSession,
+      syncSessionAfterResponse,
       startStream,
     ]
   );

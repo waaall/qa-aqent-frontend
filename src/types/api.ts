@@ -8,7 +8,7 @@ export interface ChatRequest {
   query: string;
   session_id?: string;
   query_type?: QueryType;
-  create_session?: boolean;
+  reset?: boolean;
   stream_thoughts?: boolean;  // 是否启用思考流
 }
 
@@ -77,20 +77,6 @@ export interface SessionHistoryResponse {
     metadata?: Record<string, unknown>;
   }>;
   count: number;
-}
-
-// /api/react_query 接口
-export interface ReactQueryRequest {
-  query: string;
-  reset?: boolean;
-}
-
-export interface ReactQueryResponse {
-  success: boolean;
-  answer: string;
-  raw?: string;
-  fallback_triggered?: boolean;
-  fallback_reason?: string;
 }
 
 // /upload/status/{task_id} 接口

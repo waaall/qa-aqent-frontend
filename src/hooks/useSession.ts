@@ -120,12 +120,10 @@ export function useSession() {
   /**
    * 开始新对话
    */
-  const startNewChat = useCallback(async () => {
-    const sessionId = await createSession();
-    if (sessionId) {
-      setCurrentSession(sessionId);
-    }
-  }, [createSession, setCurrentSession]);
+  const startNewChat = useCallback(() => {
+    setCurrentSession(null);
+    clearMessages();
+  }, [setCurrentSession, clearMessages]);
 
   return {
     sessions,

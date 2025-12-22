@@ -92,6 +92,8 @@ const [isOpen, setIsOpen] = useState(false);
 
 ## API 调用
 
+注：后端多数接口(除了/health)统一以 `/api` 前缀暴露，请确保 `VITE_API_BASE_URL` 与 endpoint 拼接后不要出现重复的 `/api`。
+
 ### 使用 API Service
 
 不要直接在组件中调用 axios，使用封装的 API service：

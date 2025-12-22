@@ -8,8 +8,6 @@ import {
   ChatResponse,
   CreateSessionResponse,
   SessionHistoryResponse,
-  ReactQueryRequest,
-  ReactQueryResponse,
   ContextInfoResponse,
   SuccessResponse,
 } from '@/types';
@@ -143,13 +141,6 @@ export const chatApi = {
     return apiClient.post<SuccessResponse>(`${config.endpoints.contextRefresh}/${sessionId}/refresh`);
   },
 
-  /**
-   * 智能问答接口（带路由和兜底）
-   */
-  async sendReactQuery(request: ReactQueryRequest): Promise<ReactQueryResponse> {
-    logger.info('Sending react query', { query: request.query });
-    return apiClient.post<ReactQueryResponse>(config.endpoints.reactQuery, request);
-  },
 };
 
 export default chatApi;

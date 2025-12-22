@@ -3,6 +3,7 @@
  */
 
 export const config = {
+  // 后端接口(除了/health) 统一以 /api 为前缀，避免重复 /api
   apiBaseUrl: import.meta.env.VITE_API_BASE_URL || '',
   appTitle: import.meta.env.VITE_APP_TITLE || '电厂智能问答系统',
   logLevel: import.meta.env.VITE_LOG_LEVEL || 'info',
@@ -11,7 +12,6 @@ export const config = {
   endpoints: {
     // 聊天相关
     chat: import.meta.env.VITE_CHAT_ENDPOINT || '/api/chat',
-    reactQuery: import.meta.env.VITE_REACT_QUERY_ENDPOINT || '/api/react_query',
 
     // 会话/Context 管理
     sessionCreate: import.meta.env.VITE_SESSION_CREATE_ENDPOINT || '/session/create',
@@ -66,7 +66,6 @@ export const config = {
   thinkingStream: {
     enabled: import.meta.env.VITE_ENABLE_THINKING_STREAM === 'true',
     endpoint: import.meta.env.VITE_STREAM_ENDPOINT || '/api/react_stream',
-    fallbackEndpoint: import.meta.env.VITE_FALLBACK_ENDPOINT || '/api/react_query',
     heartbeatTimeout: parseInt(import.meta.env.VITE_STREAM_HEARTBEAT_TIMEOUT || '30000'),
     previewMaxLength: parseInt(import.meta.env.VITE_THINKING_PREVIEW_MAX_LENGTH || '500'),
   },
@@ -74,6 +73,5 @@ export const config = {
 
 // 保持向后兼容的别名
 export const chatEndpoint = config.endpoints.chat;
-export const reactQueryEndpoint = config.endpoints.reactQuery;
 
 export default config;

@@ -59,9 +59,8 @@ The app uses **Zustand** for global state with two main stores:
 **Key API patterns**:
 ```typescript
 // Chat API (src/services/chatApi.ts)
-chatApi.sendMessage({ query, session_id?, create_session? })
+chatApi.sendMessage({ query, session_id?, reset? })
 chatApi.getSessionHistory(sessionId)
-chatApi.createSession()
 chatApi.deleteSession(sessionId)
 
 // Always use apiClient.get/post/put/delete for consistency
@@ -176,7 +175,7 @@ setMessages(messages);
 
 2. **Always use logger utility** - Never use console.log directly. Production logs are filtered by VITE_LOG_LEVEL.
 
-3. **Session ID handling** - First message creates session if `create_session: true`. Subsequent messages must include `session_id`.
+3. **Session ID handling** - New session is created when `reset: true` or no `session_id`. Subsequent messages must include `session_id`.
 
 4. **Markdown security** - MarkdownRenderer uses `rehype-raw` which allows HTML. Backend should sanitize responses.
 

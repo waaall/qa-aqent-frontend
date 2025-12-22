@@ -154,6 +154,8 @@ frontend/
 
 ## 环境变量配置
 
+注意：后端接口(除了/health)统一以 `/api` 前缀暴露，请确保 `VITE_API_BASE_URL` 与 endpoint 拼接后不要出现重复的 `/api`。
+
 ### 开发环境 (`.env.development`)
 
 ```env
@@ -161,7 +163,7 @@ frontend/
 VITE_API_BASE_URL=http://192.168.50.11:8006/api/
 
 # 对话接口路径（会与 base URL 拼接）
-VITE_CHAT_ENDPOINT=/api/react_query
+VITE_CHAT_ENDPOINT=/api/chat
 
 # 应用配置
 VITE_APP_TITLE=智能问答系统 [开发]
@@ -175,7 +177,6 @@ VITE_ENABLE_MOCK=false
 # 思考流配置
 VITE_ENABLE_THINKING_STREAM=true
 VITE_STREAM_ENDPOINT=/api/react_stream
-VITE_FALLBACK_ENDPOINT=/api/react_query
 VITE_STREAM_HEARTBEAT_TIMEOUT=30000
 VITE_THINKING_PREVIEW_MAX_LENGTH=500
 ```
@@ -187,7 +188,7 @@ VITE_THINKING_PREVIEW_MAX_LENGTH=500
 VITE_API_BASE_URL=/api
 
 # 对话接口路径（会与 base URL 拼接）
-VITE_CHAT_ENDPOINT=/api/react_query
+VITE_CHAT_ENDPOINT=/api/chat
 
 # 应用配置
 VITE_APP_TITLE=智能问答系统
@@ -198,7 +199,6 @@ VITE_LOG_LEVEL=error
 # 思考流配置
 VITE_ENABLE_THINKING_STREAM=true
 VITE_STREAM_ENDPOINT=/api/react_stream
-VITE_FALLBACK_ENDPOINT=/api/react_query
 VITE_STREAM_HEARTBEAT_TIMEOUT=30000
 VITE_THINKING_PREVIEW_MAX_LENGTH=500
 ```
@@ -251,27 +251,27 @@ VITE_THINKING_PREVIEW_MAX_LENGTH=500
 使用 `VITE_CHAT_ENDPOINT` 配置（与 `VITE_API_BASE_URL` 拼接）。
 
 ```typescript
-POST /api/react_query
+POST /api/chat
 {
   "query": "用户问题",
   "session_id": "会话ID（可选）",
-  "create_session": true
+  "reset": true
 }
 ```
 
 ### 会话管理
 
 ```typescript
-POST /api/session/create          # 创建会话
-GET /api/session/:id/history      # 获取历史
-DELETE /api/session/:id            # 删除会话
-POST /api/session/:id/refresh     # 刷新会话
+POST /api/chat (reset=true)       # 创建会话（不传 session_id）
+GET /api/context/{session_id}/info    # 获取历史
+DELETE /api/context/{session_id}      # 删除会话
+POST /api/context/{session_id}/refresh # 刷新会话
 ```
 
 ### 思考流（SSE）
 
 - 端点：默认 `VITE_STREAM_ENDPOINT=/api/react_stream`，与 `VITE_API_BASE_URL` 拼接。
-- 请求体：与 `/api/react_query` 相同，额外支持 `stream_thoughts=true`。
+- 请求体：与 `/api/chat` 相同，额外支持 `stream_thoughts=true`。
 - 事件类型：`meta.start`、`router.decision`、`memory.inject`、`thought`、`tool_call`、`tool_result`、`fallback`、`final`、`error`、`heartbeat`。
 - 前端行为：实时展示思考轨迹，超时/错误自动降级到一次性响应；“停止”按钮通过 AbortController 终止流。
 - 长内容截断：工具结果 `preview` 按 `VITE_THINKING_PREVIEW_MAX_LENGTH` 截断，避免撑爆 UI。
