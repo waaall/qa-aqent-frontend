@@ -2,6 +2,83 @@
   /* Modal 本身的样式由 Ant Design 主题控制 */
 }
 
+.modal :global(.ant-modal-header) {
+  background: linear-gradient(135deg, rgba(24, 144, 255, 0.08), rgba(24, 144, 255, 0.03));
+  border-bottom: 2px solid rgba(24, 144, 255, 0.15);
+  padding: 20px 24px;
+}
+
+.modalTitle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.titleText {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  background: linear-gradient(135deg, #1890ff, #096dd9);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.tabs {
+  min-height: 500px;
+}
+
+.tabs :global(.ant-tabs-nav) {
+  margin-bottom: 0;
+  background: linear-gradient(180deg, rgba(24, 144, 255, 0.02), transparent);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.tabs :global(.ant-tabs-tab) {
+  padding: 12px 0;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.tabs :global(.ant-tabs-tab-active) {
+  font-weight: 600;
+}
+
+.tabs :global(.ant-tabs-ink-bar) {
+  height: 3px;
+  background: linear-gradient(90deg, #1890ff, #096dd9);
+  border-radius: 2px 2px 0 0;
+}
+
+.tabLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: 0.3px;
+}
+
+.tabLabel :global(.anticon) {
+  font-size: 16px;
+}
+
+.tabContent {
+  padding: 24px;
+  min-height: 450px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .section {
   display: flex;
   flex-direction: column;
@@ -17,8 +94,74 @@
 .sectionDesc {
   font-size: 13px;
   line-height: 1.5;
+  color: rgba(0, 0, 0, 0.65);
 }
 
 .sectionContent {
   margin-top: 8px;
+}
+
+.aboutContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 40px 20px;
+  background: linear-gradient(135deg, rgba(24, 144, 255, 0.05), rgba(24, 144, 255, 0.02));
+  border-radius: 8px;
+  border: 1px solid rgba(24, 144, 255, 0.1);
+  text-align: center;
+}
+
+.appTitle {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #1890ff, #096dd9);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.version {
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  font-size: 14px;
+  padding: 4px 12px;
+  background: rgba(24, 144, 255, 0.1);
+  border-radius: 4px;
+  color: #096dd9;
+  font-weight: 500;
+}
+
+.description {
+  font-size: 14px;
+  max-width: 400px;
+  line-height: 1.6;
+}
+
+/* 深色模式适配 */
+@media (prefers-color-scheme: dark) {
+  .modal :global(.ant-modal-header) {
+    background: linear-gradient(135deg, rgba(24, 144, 255, 0.15), rgba(24, 144, 255, 0.08));
+    border-bottom-color: rgba(24, 144, 255, 0.25);
+  }
+
+  .tabs :global(.ant-tabs-nav) {
+    background: linear-gradient(180deg, rgba(24, 144, 255, 0.05), transparent);
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .sectionDesc {
+    color: rgba(255, 255, 255, 0.65);
+  }
+
+  .aboutContent {
+    background: linear-gradient(135deg, rgba(24, 144, 255, 0.1), rgba(24, 144, 255, 0.05));
+    border-color: rgba(24, 144, 255, 0.2);
+  }
+
+  .version {
+    background: rgba(24, 144, 255, 0.15);
+    color: #40a9ff;
+  }
 }

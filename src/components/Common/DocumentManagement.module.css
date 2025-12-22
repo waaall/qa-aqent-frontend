@@ -1,0 +1,195 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: 100%;
+  position: relative;
+}
+
+/* 背景网格效果 */
+.container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    linear-gradient(rgba(24, 144, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(24, 144, 255, 0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, rgba(24, 144, 255, 0.05), rgba(24, 144, 255, 0.02));
+  border-radius: 8px;
+  border: 1px solid rgba(24, 144, 255, 0.1);
+  position: relative;
+  z-index: 1;
+}
+
+.toolbarLeft {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  background: linear-gradient(135deg, #1890ff, #096dd9);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.count {
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  font-size: 12px;
+  padding: 2px 8px;
+  background: rgba(24, 144, 255, 0.1);
+  border-radius: 4px;
+  color: #096dd9;
+}
+
+.uploadBtn {
+  background: linear-gradient(135deg, #1890ff, #096dd9);
+  border: none;
+  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2);
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.uploadBtn:hover {
+  background: linear-gradient(135deg, #40a9ff, #1890ff);
+  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
+}
+
+.tableWrapper {
+  position: relative;
+  z-index: 1;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.table :global(.ant-table) {
+  font-size: 13px;
+}
+
+.table :global(.ant-table-thead > tr > th) {
+  background: linear-gradient(180deg, #fafafa, #f5f5f5);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.65);
+  border-bottom: 2px solid #e8e8e8;
+}
+
+.table :global(.ant-table-tbody > tr) {
+  transition: all 0.2s ease;
+}
+
+.table :global(.ant-table-tbody > tr:hover) {
+  background: rgba(24, 144, 255, 0.02);
+}
+
+.filename {
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.85);
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.tag {
+  font-size: 11px;
+  padding: 2px 10px;
+  border-radius: 4px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  border: none;
+}
+
+.fileType {
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.45);
+  letter-spacing: 0.5px;
+}
+
+.size {
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.65);
+  font-weight: 500;
+}
+
+.time {
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.storageTag {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.04);
+  color: rgba(0, 0, 0, 0.65);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  font-weight: 500;
+}
+
+/* 深色模式适配 */
+@media (prefers-color-scheme: dark) {
+  .container::before {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  }
+
+  .toolbar {
+    background: linear-gradient(135deg, rgba(24, 144, 255, 0.1), rgba(24, 144, 255, 0.05));
+    border-color: rgba(24, 144, 255, 0.2);
+  }
+
+  .count {
+    background: rgba(24, 144, 255, 0.15);
+    color: #40a9ff;
+  }
+
+  .tableWrapper {
+    background: rgba(0, 0, 0, 0.2);
+  }
+
+  .filename {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .fileType,
+  .size,
+  .time {
+    color: rgba(255, 255, 255, 0.65);
+  }
+
+  .storageTag {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.65);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+}

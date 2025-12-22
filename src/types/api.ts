@@ -36,6 +36,10 @@ export interface UploadDocumentResponse {
 
 export interface Document {
   filename: string;
+  label: string;
+  relative_path: string;
+  storage: 'documents' | 'processed_docs';
+  file_type: string;
   size: number;
   modified: number;
 }

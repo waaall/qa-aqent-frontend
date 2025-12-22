@@ -1,0 +1,89 @@
+.modal {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.labelSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-size: 14px;
+  color: var(--text-primary);
+  letter-spacing: 0.3px;
+}
+
+.labelSelect {
+  width: 100%;
+}
+
+.labelOption {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.labelOption::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background-color: currentColor;
+}
+
+.labelOption[data-color="blue"]::before {
+  background-color: #1890ff;
+}
+
+.labelOption[data-color="green"]::before {
+  background-color: #52c41a;
+}
+
+.labelOption[data-color="orange"]::before {
+  background-color: #fa8c16;
+}
+
+.labelOption[data-color="purple"]::before {
+  background-color: #722ed1;
+}
+
+.labelOption[data-color="red"]::before {
+  background-color: #f5222d;
+}
+
+.dragger {
+  border: 2px dashed #d9d9d9 !important;
+  border-radius: 8px !important;
+  background: rgba(0, 0, 0, 0.02) !important;
+  transition: all 0.3s ease !important;
+}
+
+.dragger:hover {
+  border-color: #1890ff !important;
+  background: rgba(24, 144, 255, 0.05) !important;
+}
+
+.progressSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(24, 144, 255, 0.05), rgba(24, 144, 255, 0.02));
+  border-radius: 8px;
+  border: 1px solid rgba(24, 144, 255, 0.15);
+}
+
+.fileName {
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  font-size: 13px;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.statusText {
+  font-size: 12px;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  text-align: center;
+}

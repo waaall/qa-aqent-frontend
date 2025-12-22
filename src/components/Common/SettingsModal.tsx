@@ -3,11 +3,20 @@
  */
 
 import React from 'react';
-import { Modal, Typography, Divider, Space } from 'antd';
+import { Modal, Tabs, Typography } from 'antd';
+import {
+  BgColorsOutlined,
+  FileTextOutlined,
+  DashboardOutlined,
+  InfoCircleOutlined,
+} from '@ant-design/icons';
 import { ThemeToggle } from './ThemeToggle';
+import { DocumentManagement } from './DocumentManagement';
+import { SystemStatus } from './SystemStatus';
+import config from '@/config';
 import styles from './SettingsModal.module.css';
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 interface SettingsModalProps {
   open: boolean;
@@ -15,41 +24,104 @@ interface SettingsModalProps {
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) => {
+  const tabItems = [
+    {
+      key: 'theme',
+      label: (
+        <span className={styles.tabLabel}>
+          <BgColorsOutlined />
+          主题
+        </span>
+      ),
+      children: (
+        <div className={styles.tabContent}>
+          <div className={styles.section}>
+            <Text type="secondary" className={styles.sectionDesc}>
+              选择浅色、深色主题，或跟随系统设置自动切换
+            </Text>
+            <div className={styles.sectionContent}>
+              <ThemeToggle />
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'documents',
+      label: (
+        <span className={styles.tabLabel}>
+          <FileTextOutlined />
+          文档管理
+        </span>
+      ),
+      children: (
+        <div className={styles.tabContent}>
+          <DocumentManagement />
+        </div>
+      ),
+    },
+    {
+      key: 'system',
+      label: (
+        <span className={styles.tabLabel}>
+          <DashboardOutlined />
+          系统状态
+        </span>
+      ),
+      children: (
+        <div className={styles.tabContent}>
+          <SystemStatus />
+        </div>
+      ),
+    },
+    {
+      key: 'about',
+      label: (
+        <span className={styles.tabLabel}>
+          <InfoCircleOutlined />
+          关于
+        </span>
+      ),
+      children: (
+        <div className={styles.tabContent}>
+          <div className={styles.section}>
+            <div className={styles.aboutContent}>
+              <Text className={styles.appTitle}>{config.appTitle}</Text>
+              <Text type="secondary" className={styles.version}>
+                版本 v1.0.0
+              </Text>
+              <Text type="secondary" className={styles.description}>
+                基于智能问答技术的电厂运维辅助系统
+              </Text>
+            </div>
+          </div>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <Modal
-      title="设置"
+      title={
+        <div className={styles.modalTitle}>
+          <Text className={styles.titleText}>系统设置</Text>
+        </div>
+      }
       open={open}
       onCancel={onClose}
       footer={null}
-      width={480}
+      width={960}
       className={styles.modal}
+      styles={{
+        body: { padding: 0 },
+      }}
     >
-      <Space direction="vertical" size="large" style={{ width: '100%' }}>
-        {/* 主题设置 */}
-        <div className={styles.section}>
-          <Title level={5} className={styles.sectionTitle}>
-            主题设置
-          </Title>
-          <Text type="secondary" className={styles.sectionDesc}>
-            选择浅色、深色主题，或跟随系统设置自动切换
-          </Text>
-          <div className={styles.sectionContent}>
-            <ThemeToggle />
-          </div>
-        </div>
-
-        <Divider style={{ margin: 0 }} />
-
-        {/* 其他设置区域预留 */}
-        <div className={styles.section}>
-          <Title level={5} className={styles.sectionTitle}>
-            关于
-          </Title>
-          <Text type="secondary">
-            电厂智能问答系统 v1.0
-          </Text>
-        </div>
-      </Space>
+      <Tabs
+        items={tabItems}
+        defaultActiveKey="theme"
+        className={styles.tabs}
+        tabBarStyle={{ paddingLeft: 24, paddingRight: 24 }}
+      />
     </Modal>
   );
 };

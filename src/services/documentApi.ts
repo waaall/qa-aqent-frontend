@@ -14,10 +14,26 @@ import logger from '@/utils/logger';
 export const documentApi = {
   /**
    * 上传文档
+   * @param file 文件对象
+   * @param label 文档标签，默认为 'general'
    */
-  async upload(file: File): Promise<UploadDocumentResponse> {
-    logger.info('Uploading document', { filename: file.name, size: file.size });
-    return apiClient.upload<UploadDocumentResponse>(config.endpoints.documentUpload, file);
+  async upload(file: File, label: string = 'general'): Promise<UploadDocumentResponse> {
+    logger.info('Uploading document', { filename: file.name, size: file.size, label });
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('label', label);
+
+    return apiClient.post<UploadDocumentResponse>(
+      config.endpoints.documentUpload,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        timeout: config.timeout.upload,
+      }
+    );
   },
 
   /**

@@ -69,6 +69,22 @@ export const config = {
     heartbeatTimeout: parseInt(import.meta.env.VITE_STREAM_HEARTBEAT_TIMEOUT || '30000'),
     previewMaxLength: parseInt(import.meta.env.VITE_THINKING_PREVIEW_MAX_LENGTH || '500'),
   },
+
+  // 文档管理配置
+  documents: {
+    // 文档标签选项（对应后端的 label 参数）
+    labels: [
+      { value: 'general', label: '通用文档', color: 'blue' },
+      { value: 'technical', label: '技术文档', color: 'green' },
+      { value: 'operation', label: '操作手册', color: 'orange' },
+      { value: 'maintenance', label: '维护指南', color: 'purple' },
+      { value: 'safety', label: '安全规范', color: 'red' },
+    ],
+    // 支持的文件类型
+    supportedExtensions: ['.pdf', '.md'],
+    // 文件大小限制（字节）
+    maxFileSize: 50 * 1024 * 1024, // 50MB
+  },
 } as const;
 
 // 保持向后兼容的别名
