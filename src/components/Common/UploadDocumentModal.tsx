@@ -3,7 +3,7 @@
  */
 
 import React, { useState } from 'react';
-import { Modal, Upload, Select, Progress, Space, Typography, Alert, message } from 'antd';
+import { Modal, Upload, Select, Progress, Space, Typography, Alert, Button, message } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
 import type { UploadProps } from 'antd';
 import { documentApi } from '@/services';
@@ -25,20 +25,25 @@ export const UploadDocumentModal: React.FC<UploadDocumentModalProps> = ({
   onClose,
   onSuccess,
 }) => {
-  const [selectedLabel, setSelectedLabel] = useState('general');
+  const defaultLabel = config.documents.labels[0]?.value ?? 'general';
+  const [selectedLabel, setSelectedLabel] = useState(defaultLabel);
   const [uploading, setUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<UploadTaskStatus | null>(null);
   const [currentFile, setCurrentFile] = useState<File | null>(null);
 
+  const clearSelectedFile = () => {
+    setCurrentFile(null);
+    setUploadStatus(null);
+  };
+
   const handleClose = () => {
     if (!uploading) {
-      setUploadStatus(null);
-      setCurrentFile(null);
+      clearSelectedFile();
       onClose();
     }
   };
 
-  const handleUpload = async (file: File) => {
+  const validateFile = (file: File) => {
     // 文件大小检查
     if (file.size > config.documents.maxFileSize) {
       message.error(`文件大小超过限制（最大 ${config.documents.maxFileSize / 1024 / 1024}MB）`);
@@ -46,29 +51,46 @@ export const UploadDocumentModal: React.FC<UploadDocumentModalProps> = ({
     }
 
     // 文件类型检查
-    const fileExt = `.${file.name.split('.').pop()?.toLowerCase()}` as '.pdf' | '.md';
+    const fileExt = `.${file.name.split('.').pop()?.toLowerCase()}` as (typeof config.documents.supportedExtensions)[number];
     if (!config.documents.supportedExtensions.includes(fileExt)) {
       message.error(`不支持的文件类型，仅支持：${config.documents.supportedExtensions.join('、')}`);
       return false;
     }
 
+    return true;
+  };
+
+  const handleFileSelect = (file: File) => {
+    if (!validateFile(file)) {
+      return Upload.LIST_IGNORE;
+    }
+
     setCurrentFile(file);
+    setUploadStatus(null);
+    return false;
+  };
+
+  const handleStartUpload = async () => {
+    if (!currentFile) {
+      message.warning('请先选择文件');
+      return;
+    }
+
     setUploading(true);
     setUploadStatus(null);
 
     try {
       // 上传文件
-      const response = await documentApi.upload(file, selectedLabel);
+      const response = await documentApi.upload(currentFile, selectedLabel);
 
       if (response.success && response.task_id) {
         message.success('文件上传成功，开始处理...');
 
         // 轮询任务状态
-        await documentApi.pollUploadStatus(response.task_id, (status) => {
+        const finalStatus = await documentApi.pollUploadStatus(response.task_id, (status) => {
           setUploadStatus(status);
         });
 
-        const finalStatus = uploadStatus;
         if (finalStatus?.status === 'completed') {
           message.success('文档处理完成！');
           onSuccess();
@@ -85,15 +107,15 @@ export const UploadDocumentModal: React.FC<UploadDocumentModalProps> = ({
     } finally {
       setUploading(false);
     }
-
-    return false;
   };
 
   const uploadProps: UploadProps = {
     name: 'file',
     multiple: false,
     showUploadList: false,
-    beforeUpload: handleUpload,
+    maxCount: 1,
+    accept: config.documents.supportedExtensions.join(','),
+    beforeUpload: handleFileSelect,
     disabled: uploading,
   };
 
@@ -142,26 +164,6 @@ export const UploadDocumentModal: React.FC<UploadDocumentModalProps> = ({
       className={styles.modal}
     >
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
-        {/* 标签选择 */}
-        <div className={styles.labelSection}>
-          <Text strong className={styles.label}>文档标签</Text>
-          <Select
-            value={selectedLabel}
-            onChange={setSelectedLabel}
-            disabled={uploading}
-            className={styles.labelSelect}
-            size="large"
-          >
-            {config.documents.labels.map((label) => (
-              <Select.Option key={label.value} value={label.value}>
-                <span className={styles.labelOption} data-color={label.color}>
-                  {label.label}
-                </span>
-              </Select.Option>
-            ))}
-          </Select>
-        </div>
-
         {/* 文件上传 */}
         <Dragger {...uploadProps} className={styles.dragger}>
           <p className="ant-upload-drag-icon">
@@ -172,8 +174,49 @@ export const UploadDocumentModal: React.FC<UploadDocumentModalProps> = ({
             支持格式: {config.documents.supportedExtensions.join('、')}
             <br />
             最大文件大小: {config.documents.maxFileSize / 1024 / 1024}MB
+            <br />
+            选择文件后可设置标签并开始上传
           </p>
         </Dragger>
+
+        {currentFile && !uploading && uploadStatus?.status !== 'completed' && (
+          <div className={styles.selectionSection}>
+            <div className={styles.fileSummary}>
+              <Text className={styles.fileName}>{currentFile.name}</Text>
+              <Button
+                type="link"
+                onClick={clearSelectedFile}
+                className={styles.resetBtn}
+              >
+                重新选择
+              </Button>
+            </div>
+            {/* 标签选择 */}
+            <div className={styles.labelSection}>
+              <Text strong className={styles.label}>文档标签</Text>
+              <Select
+                value={selectedLabel}
+                onChange={setSelectedLabel}
+                disabled={uploading}
+                className={styles.labelSelect}
+                size="large"
+              >
+                {config.documents.labels.map((label) => (
+                  <Select.Option key={label.value} value={label.value}>
+                    <span className={styles.labelOption} data-color={label.color}>
+                      {label.label}
+                    </span>
+                  </Select.Option>
+                ))}
+              </Select>
+            </div>
+            <div className={styles.actions}>
+              <Button type="primary" onClick={handleStartUpload} loading={uploading}>
+                开始上传
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* 上传进度 */}
         {(uploading || uploadStatus) && (

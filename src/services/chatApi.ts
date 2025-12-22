@@ -107,12 +107,39 @@ export const chatApi = {
       }
     );
 
+    let messages: Array<{
+      role: string;
+      content: string;
+      timestamp: number;
+      metadata?: Record<string, unknown>;
+    }> = [];
+
+    // 解析 ctx_json 字段获取历史消息
+    if (response.context.ctx_json) {
+      try {
+        const ctx = JSON.parse(response.context.ctx_json);
+        // ctx 可能直接包含 messages 数组，或者在 memory.chat_history 中
+        if (ctx.messages && Array.isArray(ctx.messages)) {
+          messages = ctx.messages;
+        } else if (ctx.memory?.chat_history && Array.isArray(ctx.memory.chat_history)) {
+          messages = ctx.memory.chat_history;
+        } else {
+          logger.warn('ctx_json does not contain messages array', { ctx });
+        }
+      } catch (error) {
+        logger.error('Failed to parse ctx_json', error);
+      }
+    } else if (response.context.messages) {
+      // 兼容直接返回 messages 的情况
+      messages = response.context.messages;
+    }
+
     // 转换为 SessionHistoryResponse 格式以保持向后兼容
     return {
       success: response.success,
       session_id: response.context.session_id,
-      history: response.context.messages,
-      count: response.context.messages.length,
+      history: messages,
+      count: messages.length,
     };
   },
 

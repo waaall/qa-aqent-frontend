@@ -113,7 +113,12 @@ export interface ContextInfoResponse {
   success: boolean;
   context: {
     session_id: string;
-    messages: Array<{
+    exists: boolean;
+    size_bytes?: number;
+    size_warning?: boolean;
+    ctx_json?: string;  // 序列化后的 Context JSON
+    // 以下字段用于兼容解析后的 ctx 数据
+    messages?: Array<{
       role: string;
       content: string;
       timestamp: number;

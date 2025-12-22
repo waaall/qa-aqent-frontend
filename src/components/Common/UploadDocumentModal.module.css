@@ -18,6 +18,23 @@
   width: 100%;
 }
 
+.selectionSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--bg-glass);
+  border: 1px solid var(--glass-border);
+}
+
+.fileSummary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .labelOption {
   display: inline-flex;
   align-items: center;
@@ -105,6 +122,16 @@
   font-size: 13px;
   color: var(--text-primary);
   font-weight: 500;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.resetBtn {
+  padding: 0;
 }
 
 .statusText {
