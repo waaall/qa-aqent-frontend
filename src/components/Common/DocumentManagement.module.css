@@ -6,7 +6,7 @@
   position: relative;
 }
 
-/* 背景网格效果 */
+/* 背景网格效果 - 使用主题适配 */
 .container::before {
   content: '';
   position: absolute;
@@ -14,12 +14,23 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-image:
-    linear-gradient(rgba(24, 144, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(24, 144, 255, 0.03) 1px, transparent 1px);
   background-size: 20px 20px;
   pointer-events: none;
   z-index: 0;
+}
+
+/* 浅色主题网格 */
+[data-theme="light"] .container::before {
+  background-image:
+    linear-gradient(rgba(24, 144, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(24, 144, 255, 0.03) 1px, transparent 1px);
+}
+
+/* 深色主题网格 */
+[data-theme="dark"] .container::before {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
 }
 
 .toolbar {
@@ -27,11 +38,22 @@
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
-  background: linear-gradient(135deg, rgba(24, 144, 255, 0.05), rgba(24, 144, 255, 0.02));
   border-radius: 8px;
   border: 1px solid rgba(24, 144, 255, 0.1);
   position: relative;
   z-index: 1;
+}
+
+/* 浅色主题工具栏 */
+[data-theme="light"] .toolbar {
+  background: linear-gradient(135deg, rgba(24, 144, 255, 0.05), rgba(24, 144, 255, 0.02));
+  border-color: rgba(24, 144, 255, 0.1);
+}
+
+/* 深色主题工具栏 */
+[data-theme="dark"] .toolbar {
+  background: linear-gradient(135deg, rgba(123, 158, 245, 0.1), rgba(123, 158, 245, 0.05));
+  border-color: rgba(123, 158, 245, 0.2);
 }
 
 .toolbarLeft {
@@ -44,7 +66,19 @@
   font-size: 18px;
   font-weight: 700;
   letter-spacing: -0.3px;
+}
+
+/* 浅色主题标题 */
+[data-theme="light"] .title {
   background: linear-gradient(135deg, #1890ff, #096dd9);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 深色主题标题 */
+[data-theme="dark"] .title {
+  background: linear-gradient(135deg, #7B9EF5, #9BB8F7);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -54,58 +88,111 @@
   font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
   font-size: 12px;
   padding: 2px 8px;
-  background: rgba(24, 144, 255, 0.1);
   border-radius: 4px;
+}
+
+/* 浅色主题计数 */
+[data-theme="light"] .count {
+  background: rgba(24, 144, 255, 0.1);
   color: #096dd9;
 }
 
+/* 深色主题计数 */
+[data-theme="dark"] .count {
+  background: rgba(123, 158, 245, 0.15);
+  color: #9BB8F7;
+}
+
 .uploadBtn {
-  background: linear-gradient(135deg, #1890ff, #096dd9);
   border: none;
-  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2);
   font-weight: 500;
   letter-spacing: 0.3px;
 }
 
-.uploadBtn:hover {
+/* 浅色主题按钮 */
+[data-theme="light"] .uploadBtn {
+  background: linear-gradient(135deg, #1890ff, #096dd9);
+  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2);
+}
+
+[data-theme="light"] .uploadBtn:hover {
   background: linear-gradient(135deg, #40a9ff, #1890ff);
   box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
+}
+
+/* 深色主题按钮 */
+[data-theme="dark"] .uploadBtn {
+  background: linear-gradient(135deg, #7B9EF5, #9BB8F7);
+  box-shadow: 0 2px 8px rgba(123, 158, 245, 0.3);
+}
+
+[data-theme="dark"] .uploadBtn:hover {
+  background: linear-gradient(135deg, #9BB8F7, #7B9EF5);
+  box-shadow: 0 4px 12px rgba(123, 158, 245, 0.4);
 }
 
 .tableWrapper {
   position: relative;
   z-index: 1;
-  background: white;
   border-radius: 8px;
   overflow: hidden;
+}
+
+/* 浅色主题表格容器 */
+[data-theme="light"] .tableWrapper {
+  background: white;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* 深色主题表格容器 */
+[data-theme="dark"] .tableWrapper {
+  background: rgba(30, 34, 51, 0.4);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .table :global(.ant-table) {
   font-size: 13px;
 }
 
-.table :global(.ant-table-thead > tr > th) {
+/* 浅色主题表头 */
+[data-theme="light"] .table :global(.ant-table-thead > tr > th) {
   background: linear-gradient(180deg, #fafafa, #f5f5f5);
+  color: rgba(0, 0, 0, 0.65);
+  border-bottom: 2px solid #e8e8e8;
   font-weight: 600;
   font-size: 12px;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  color: rgba(0, 0, 0, 0.65);
-  border-bottom: 2px solid #e8e8e8;
+}
+
+/* 深色主题表头 */
+[data-theme="dark"] .table :global(.ant-table-thead > tr > th) {
+  background: linear-gradient(180deg, rgba(38, 43, 64, 0.6), rgba(30, 34, 51, 0.6));
+  color: rgba(255, 255, 255, 0.65);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .table :global(.ant-table-tbody > tr) {
   transition: all 0.2s ease;
 }
 
-.table :global(.ant-table-tbody > tr:hover) {
+/* 浅色主题行悬停 */
+[data-theme="light"] .table :global(.ant-table-tbody > tr:hover) {
   background: rgba(24, 144, 255, 0.02);
+}
+
+/* 深色主题行悬停 */
+[data-theme="dark"] .table :global(.ant-table-tbody > tr:hover) {
+  background: rgba(123, 158, 245, 0.08);
 }
 
 .filename {
   font-weight: 500;
-  color: rgba(0, 0, 0, 0.85);
+  color: var(--text-primary);
   max-width: 280px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -127,69 +214,41 @@
   font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
   font-size: 11px;
   font-weight: 600;
-  color: rgba(0, 0, 0, 0.45);
+  color: var(--text-tertiary);
   letter-spacing: 0.5px;
 }
 
 .size {
   font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
   font-size: 12px;
-  color: rgba(0, 0, 0, 0.65);
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
 .time {
   font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
   font-size: 12px;
-  color: rgba(0, 0, 0, 0.45);
+  color: var(--text-tertiary);
 }
 
 .storageTag {
   font-size: 11px;
   padding: 2px 8px;
   border-radius: 3px;
-  background: rgba(0, 0, 0, 0.04);
-  color: rgba(0, 0, 0, 0.65);
-  border: 1px solid rgba(0, 0, 0, 0.08);
   font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
   font-weight: 500;
 }
 
-/* 深色模式适配 */
-@media (prefers-color-scheme: dark) {
-  .container::before {
-    background-image:
-      linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  }
+/* 浅色主题存储标签 */
+[data-theme="light"] .storageTag {
+  background: rgba(0, 0, 0, 0.04);
+  color: rgba(0, 0, 0, 0.65);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
 
-  .toolbar {
-    background: linear-gradient(135deg, rgba(24, 144, 255, 0.1), rgba(24, 144, 255, 0.05));
-    border-color: rgba(24, 144, 255, 0.2);
-  }
-
-  .count {
-    background: rgba(24, 144, 255, 0.15);
-    color: #40a9ff;
-  }
-
-  .tableWrapper {
-    background: rgba(0, 0, 0, 0.2);
-  }
-
-  .filename {
-    color: rgba(255, 255, 255, 0.85);
-  }
-
-  .fileType,
-  .size,
-  .time {
-    color: rgba(255, 255, 255, 0.65);
-  }
-
-  .storageTag {
-    background: rgba(255, 255, 255, 0.08);
-    color: rgba(255, 255, 255, 0.65);
-    border-color: rgba(255, 255, 255, 0.15);
-  }
+/* 深色主题存储标签 */
+[data-theme="dark"] .storageTag {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }

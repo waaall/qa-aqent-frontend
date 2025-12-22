@@ -11,19 +11,38 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: radial-gradient(circle, rgba(24, 144, 255, 0.08) 1px, transparent 1px);
   background-size: 16px 16px;
   pointer-events: none;
   z-index: 0;
+}
+
+/* 浅色主题点阵 */
+[data-theme="light"] .container::before {
+  background-image: radial-gradient(circle, rgba(24, 144, 255, 0.08) 1px, transparent 1px);
+}
+
+/* 深色主题点阵 */
+[data-theme="dark"] .container::before {
+  background-image: radial-gradient(circle, rgba(123, 158, 245, 0.12) 1px, transparent 1px);
 }
 
 .card {
   position: relative;
   z-index: 1;
   border-radius: 8px;
+  overflow: hidden;
+}
+
+/* 浅色主题卡片 */
+[data-theme="light"] .card {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   border: 1px solid rgba(24, 144, 255, 0.1);
-  overflow: hidden;
+}
+
+/* 深色主题卡片 */
+[data-theme="dark"] .card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(123, 158, 245, 0.2);
 }
 
 .card::before {
@@ -33,9 +52,18 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, #1890ff, #096dd9, #1890ff);
   background-size: 200% 100%;
   animation: shimmer 3s ease-in-out infinite;
+}
+
+/* 浅色主题装饰条 */
+[data-theme="light"] .card::before {
+  background: linear-gradient(90deg, #1890ff, #096dd9, #1890ff);
+}
+
+/* 深色主题装饰条 */
+[data-theme="dark"] .card::before {
+  background: linear-gradient(90deg, #7B9EF5, #9BB8F7, #7B9EF5);
 }
 
 @keyframes shimmer {
@@ -55,8 +83,17 @@
 
 .icon {
   font-size: 20px;
-  color: #1890ff;
   animation: pulse 2s ease-in-out infinite;
+}
+
+/* 浅色主题图标 */
+[data-theme="light"] .icon {
+  color: #1890ff;
+}
+
+/* 深色主题图标 */
+[data-theme="dark"] .icon {
+  color: #7B9EF5;
 }
 
 @keyframes pulse {
@@ -70,13 +107,19 @@
 
 .cardTitle {
   margin: 0 !important;
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 16px !important;
+  font-weight: 700 !important;
   letter-spacing: -0.2px;
-  background: linear-gradient(135deg, #1890ff, #096dd9);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+}
+
+/* 浅色主题标题 - 使用纯色而不是渐变 */
+[data-theme="light"] .cardTitle {
+  color: #1890ff !important;
+}
+
+/* 深色主题标题 - 使用纯色而不是渐变 */
+[data-theme="dark"] .cardTitle {
+  color: #7B9EF5 !important;
 }
 
 .loading {
@@ -88,9 +131,19 @@
 
 .form {
   padding: 16px;
-  background: linear-gradient(135deg, rgba(24, 144, 255, 0.03), rgba(24, 144, 255, 0.01));
   border-radius: 6px;
+}
+
+/* 浅色主题表单 */
+[data-theme="light"] .form {
+  background: linear-gradient(135deg, rgba(24, 144, 255, 0.03), rgba(24, 144, 255, 0.01));
   border: 1px solid rgba(24, 144, 255, 0.1);
+}
+
+/* 深色主题表单 */
+[data-theme="dark"] .form {
+  background: linear-gradient(135deg, rgba(123, 158, 245, 0.08), rgba(123, 158, 245, 0.03));
+  border: 1px solid rgba(123, 158, 245, 0.2);
 }
 
 .form :global(.ant-form-item) {
@@ -104,12 +157,22 @@
 }
 
 .dbInfo {
-  background: #fafafa;
   border-radius: 6px;
   padding: 16px;
-  border: 1px solid #e8e8e8;
   max-height: 400px;
   overflow: auto;
+}
+
+/* 浅色主题数据库信息 */
+[data-theme="light"] .dbInfo {
+  background: #fafafa;
+  border: 1px solid #e8e8e8;
+}
+
+/* 深色主题数据库信息 */
+[data-theme="dark"] .dbInfo {
+  background: rgba(30, 34, 51, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .jsonDisplay {
@@ -117,10 +180,19 @@
   font-size: 12px;
   line-height: 1.6;
   margin: 0;
-  color: #262626;
   background: transparent;
   white-space: pre-wrap;
   word-wrap: break-word;
+}
+
+/* 浅色主题 JSON 文本 */
+[data-theme="light"] .jsonDisplay {
+  color: #262626;
+}
+
+/* 深色主题 JSON 文本 */
+[data-theme="dark"] .jsonDisplay {
+  color: rgba(255, 255, 255, 0.85);
 }
 
 /* 自定义滚动条 */
@@ -129,42 +201,34 @@
   height: 8px;
 }
 
-.dbInfo::-webkit-scrollbar-track {
+/* 浅色主题滚动条 */
+[data-theme="light"] .dbInfo::-webkit-scrollbar-track {
   background: rgba(0, 0, 0, 0.04);
   border-radius: 4px;
 }
 
-.dbInfo::-webkit-scrollbar-thumb {
+[data-theme="light"] .dbInfo::-webkit-scrollbar-thumb {
   background: rgba(24, 144, 255, 0.3);
   border-radius: 4px;
   transition: background 0.2s;
 }
 
-.dbInfo::-webkit-scrollbar-thumb:hover {
+[data-theme="light"] .dbInfo::-webkit-scrollbar-thumb:hover {
   background: rgba(24, 144, 255, 0.5);
 }
 
-/* 深色模式适配 */
-@media (prefers-color-scheme: dark) {
-  .container::before {
-    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
-  }
+/* 深色主题滚动条 */
+[data-theme="dark"] .dbInfo::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
 
-  .card {
-    border-color: rgba(24, 144, 255, 0.2);
-  }
+[data-theme="dark"] .dbInfo::-webkit-scrollbar-thumb {
+  background: rgba(123, 158, 245, 0.4);
+  border-radius: 4px;
+  transition: background 0.2s;
+}
 
-  .form {
-    background: linear-gradient(135deg, rgba(24, 144, 255, 0.08), rgba(24, 144, 255, 0.03));
-    border-color: rgba(24, 144, 255, 0.2);
-  }
-
-  .dbInfo {
-    background: rgba(0, 0, 0, 0.2);
-    border-color: rgba(255, 255, 255, 0.1);
-  }
-
-  .jsonDisplay {
-    color: rgba(255, 255, 255, 0.85);
-  }
+[data-theme="dark"] .dbInfo::-webkit-scrollbar-thumb:hover {
+  background: rgba(123, 158, 245, 0.6);
 }

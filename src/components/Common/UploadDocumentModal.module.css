@@ -54,15 +54,30 @@
 }
 
 .dragger {
-  border: 2px dashed #d9d9d9 !important;
   border-radius: 8px !important;
-  background: rgba(0, 0, 0, 0.02) !important;
   transition: all 0.3s ease !important;
 }
 
-.dragger:hover {
+/* 浅色主题拖拽区域 */
+[data-theme="light"] .dragger {
+  border: 2px dashed #d9d9d9 !important;
+  background: rgba(0, 0, 0, 0.02) !important;
+}
+
+[data-theme="light"] .dragger:hover {
   border-color: #1890ff !important;
   background: rgba(24, 144, 255, 0.05) !important;
+}
+
+/* 深色主题拖拽区域 */
+[data-theme="dark"] .dragger {
+  border: 2px dashed rgba(255, 255, 255, 0.2) !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+}
+
+[data-theme="dark"] .dragger:hover {
+  border-color: #7B9EF5 !important;
+  background: rgba(123, 158, 245, 0.08) !important;
 }
 
 .progressSection {
@@ -70,9 +85,19 @@
   flex-direction: column;
   gap: 12px;
   padding: 16px;
-  background: linear-gradient(135deg, rgba(24, 144, 255, 0.05), rgba(24, 144, 255, 0.02));
   border-radius: 8px;
+}
+
+/* 浅色主题进度区域 */
+[data-theme="light"] .progressSection {
+  background: linear-gradient(135deg, rgba(24, 144, 255, 0.05), rgba(24, 144, 255, 0.02));
   border: 1px solid rgba(24, 144, 255, 0.15);
+}
+
+/* 深色主题进度区域 */
+[data-theme="dark"] .progressSection {
+  background: linear-gradient(135deg, rgba(123, 158, 245, 0.1), rgba(123, 158, 245, 0.05));
+  border: 1px solid rgba(123, 158, 245, 0.2);
 }
 
 .fileName {

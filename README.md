@@ -26,13 +26,16 @@
 - 实时加载状态和错误处理
 - 自动滚动到最新消息
 - 响应式布局（支持移动端）
-- 主题系统：浅色/深色/跟随系统，CSS 变量驱动
+- 主题系统：浅色/深色/跟随系统，CSS 变量驱动，所有组件完整适配
 - 本地会话持久化（防抖优化）
 - 生产级日志系统
 - XSS 防护和输入验证
 - 思考流（SSE）展示：路由决策、工具调用/结果、LLM 思考过程流式呈现
 - 停止生成与降级：支持中断 SSE，失败自动回退到一次性响应
 - React.memo 性能优化
+- 文档管理：文档列表展示、上传（支持 PDF/Markdown）、标签分类、文件信息查看
+- 系统信息监控：系统健康状态、LLM 提供商信息、向量库统计一体化展示
+- 数据库查询工具：支持按数据库名称和来源查询数据库元信息
 
 ## 快速开始
 
@@ -111,7 +114,13 @@ frontend/
 │   │   └── Common/         # 通用组件
 │   │       ├── MarkdownRenderer.tsx   # Markdown 渲染
 │   │       ├── SourceTag.tsx          # 数据源标签
-│   │       └── LoadingDots.tsx        # 加载动画
+│   │       ├── LoadingDots.tsx        # 加载动画
+│   │       ├── ThemeToggle.tsx        # 主题切换器
+│   │       ├── SettingsModal.tsx      # 设置弹窗
+│   │       ├── DocumentManagement.tsx # 文档管理
+│   │       ├── UploadDocumentModal.tsx # 文档上传
+│   │       ├── DatabaseQuery.tsx      # 数据库查询
+│   │       └── SystemInfoModal.tsx    # 系统信息
 │   ├── services/           # API 服务
 │   │   ├── apiClient.ts               # Axios 封装
 │   │   ├── chatApi.ts                 # 聊天 API
@@ -235,12 +244,34 @@ VITE_THINKING_PREVIEW_MAX_LENGTH=500
 - 🔌 实时数据 - API 接口数据
 - 💬 对话 - 通用对话
 
-### 5. 系统状态
+### 5. 系统信息监控
 
-点击顶部的"系统状态"按钮可查看：
-- Ollama 服务状态
-- 当前加载的模型
-- 模型可用性
+点击顶部的"系统状态"按钮可查看一体化系统信息：
+- **系统状态**：Ollama 服务健康状态、当前模型信息
+- **LLM 提供商**：配置的语言模型提供商详情
+- **向量库状态**：向量数据库统计信息（文档数量、集合信息等）
+
+### 6. 文档管理
+
+在设置弹窗的"文档管理"标签页中，可以：
+- **查看文档列表**：显示所有已上传的文档，包含文件名、标签、类型、大小、修改时间、存储位置
+- **上传文档**：
+  - 支持 PDF 和 Markdown 格式
+  - 拖拽或点击上传
+  - 选择文档标签分类（通用、技术、操作、维护、安全）
+  - 实时显示上传进度和处理状态
+  - 异步处理：上传后自动预处理和索引
+- **文档信息**：查看文件详情（大小、修改时间、存储路径）
+- **标签筛选**：按文档类型快速筛选
+- **主题适配**：完整支持浅色/深色主题
+
+### 7. 数据库查询工具
+
+在设置弹窗的"数据库"标签页中，可以：
+- **查询数据库信息**：输入数据库名称和数据源进行查询
+- **查看元信息**：以 JSON 格式展示数据库结构和元数据
+- **实时查询**：点击查询按钮即时获取最新信息
+- **主题适配**：查询结果展示适配浅色/深色主题，确保可读性
 
 ## API 集成
 
@@ -273,8 +304,45 @@ POST /api/context/{session_id}/refresh # 刷新会话
 - 端点：默认 `VITE_STREAM_ENDPOINT=/api/react_stream`，与 `VITE_API_BASE_URL` 拼接。
 - 请求体：与 `/api/chat` 相同，额外支持 `stream_thoughts=true`。
 - 事件类型：`meta.start`、`router.decision`、`memory.inject`、`thought`、`tool_call`、`tool_result`、`fallback`、`final`、`error`、`heartbeat`。
-- 前端行为：实时展示思考轨迹，超时/错误自动降级到一次性响应；“停止”按钮通过 AbortController 终止流。
+- 前端行为：实时展示思考轨迹，超时/错误自动降级到一次性响应；"停止"按钮通过 AbortController 终止流。
 - 长内容截断：工具结果 `preview` 按 `VITE_THINKING_PREVIEW_MAX_LENGTH` 截断，避免撑爆 UI。
+
+### 文档管理
+
+```typescript
+GET /api/documents                    # 获取文档列表
+POST /api/documents/upload            # 上传文档（multipart/form-data）
+  - file: File                        # 文件对象
+  - label: string                     # 文档标签（general/technical/operation/maintenance/safety）
+GET /api/documents/upload_status/{task_id}  # 查询上传状态
+DELETE /api/documents/{filename}      # 删除文档
+```
+
+文档上传流程：
+1. 客户端通过 POST `/api/documents/upload` 上传文件和标签
+2. 服务器返回 `task_id`
+3. 客户端轮询 GET `/api/documents/upload_status/{task_id}` 查询处理进度
+4. 状态包括：`pending`（等待）、`preprocessing`（预处理中）、`indexing`（索引中）、`completed`（完成）、`failed`（失败）
+
+### 系统信息
+
+```typescript
+GET /health                          # 系统健康检查（不带 /api 前缀）
+  - 返回：系统状态、Ollama 连接、模型信息
+
+GET /api/stats                       # 系统统计信息
+  - 返回：LLM 提供商、向量库统计、系统配置
+```
+
+### 数据库查询
+
+```typescript
+GET /api/database/info?db_name={name}&db_source={source}  # 查询数据库信息
+  - 参数：
+    - db_name: 数据库名称（可选）
+    - db_source: 数据源标识（可选）
+  - 返回：数据库元信息（表结构、统计信息等）
+```
 
 ## 开发指南
 
@@ -450,8 +518,8 @@ npm install
 
 1. **会话标题生成**: 当前使用首条消息前30个字符，可以优化为 LLM 生成更友好的标题
 2. **消息重发**: 暂未实现重新生成功能
-3. **文件上传**: UI 已预留但功能未完全实现
-4. **部分浏览器兼容**: 老旧浏览器或特定代理环境下 SSE 可能被拦截，无法展示思考流，会自动降级为一次性响应
+3. **部分浏览器兼容**: 老旧浏览器或特定代理环境下 SSE 可能被拦截，无法展示思考流，会自动降级为一次性响应
+4. **文档删除**: 文档列表暂未提供删除功能入口（API 已支持）
 
 ## 安全性
 
