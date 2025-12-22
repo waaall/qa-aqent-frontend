@@ -7,14 +7,13 @@ import { message as antdMessage } from 'antd';
 import { useSessionStore } from '@/stores/sessionStore';
 import { useChatStore } from '@/stores/chatStore';
 import { chatApi } from '@/services';
-import { Session, Message } from '@/types';
+import { Message } from '@/types';
 import logger from '@/utils/logger';
 
 export function useSession() {
   const {
     sessions,
     currentSessionId,
-    addSession,
     removeSession,
     setCurrentSession,
     loadSessions,
@@ -27,34 +26,6 @@ export function useSession() {
   useEffect(() => {
     loadSessions();
   }, [loadSessions]);
-
-  /**
-   * 创建新会话
-   */
-  const createSession = useCallback(async () => {
-    try {
-      const response = await chatApi.createSession();
-
-      const newSession: Session = {
-        session_id: response.session_id,
-        title: '新对话',
-        created_at: Date.now(),
-        last_accessed: Date.now(),
-        message_count: 0,
-      };
-
-      addSession(newSession);
-      clearMessages();
-
-      logger.info('New session created', { session_id: response.session_id });
-
-      return newSession.session_id;
-    } catch (error) {
-      logger.error('Failed to create session', error);
-      antdMessage.error('创建会话失败');
-      return null;
-    }
-  }, [addSession, clearMessages]);
 
   /**
    * 切换会话
@@ -128,7 +99,6 @@ export function useSession() {
   return {
     sessions,
     currentSessionId,
-    createSession,
     switchSession,
     deleteSession,
     startNewChat,

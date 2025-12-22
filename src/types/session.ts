@@ -22,9 +22,3 @@ export interface SessionInfo {
   created_at: number;
   last_accessed: number;
 }
-
-export interface CreateSessionResponse {
-  success: boolean;
-  session_id: string;
-  message: string;
-}

@@ -6,7 +6,6 @@ import apiClient from './apiClient';
 import {
   ChatRequest,
   ChatResponse,
-  CreateSessionResponse,
   SessionHistoryResponse,
   ContextInfoResponse,
   SuccessResponse,
@@ -93,14 +92,6 @@ export const chatApi = {
       logger.error('SSE stream failed', error);
       throw error;
     }
-  },
-
-  /**
-   * 创建新会话
-   */
-  async createSession(): Promise<CreateSessionResponse> {
-    logger.info('Creating new session');
-    return apiClient.post<CreateSessionResponse>(config.endpoints.sessionCreate);
   },
 
   /**

@@ -13,8 +13,7 @@ export const config = {
     // 聊天相关
     chat: import.meta.env.VITE_CHAT_ENDPOINT || '/api/chat',
 
-    // 会话/Context 管理
-    sessionCreate: import.meta.env.VITE_SESSION_CREATE_ENDPOINT || '/session/create',
+    // Context 管理
     contextInfo: import.meta.env.VITE_CONTEXT_INFO_ENDPOINT || '/context',  // 会拼接 /{sessionId}/info
     contextDelete: import.meta.env.VITE_CONTEXT_DELETE_ENDPOINT || '/context',  // 会拼接 /{sessionId}
     contextRefresh: import.meta.env.VITE_CONTEXT_REFRESH_ENDPOINT || '/context',  // 会拼接 /{sessionId}/refresh
@@ -75,10 +74,8 @@ export const config = {
     // 文档标签选项（对应后端的 label 参数）
     labels: [
       { value: 'general', label: '通用文档', color: 'blue' },
-      { value: 'technical', label: '技术文档', color: 'green' },
-      { value: 'operation', label: '操作手册', color: 'orange' },
-      { value: 'maintenance', label: '维护指南', color: 'purple' },
-      { value: 'safety', label: '安全规范', color: 'red' },
+      { value: 'procedure', label: '操作规程', color: 'orange' },
+      { value: 'incident_case', label: '事故案例', color: 'red' },
     ],
     // 支持的文件类型
     supportedExtensions: ['.pdf', '.md'],
