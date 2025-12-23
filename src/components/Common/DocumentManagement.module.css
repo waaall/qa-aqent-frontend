@@ -252,3 +252,35 @@
   color: rgba(255, 255, 255, 0.65);
   border: 1px solid rgba(255, 255, 255, 0.15);
 }
+
+/* 更新向量库按钮 */
+.updateBtn {
+  border: 1px solid transparent;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  transition: all 0.3s ease;
+}
+
+/* 浅色主题 */
+[data-theme="light"] .updateBtn {
+  background: linear-gradient(135deg, #52c41a, #389e0d);
+  color: white;
+  box-shadow: 0 2px 8px rgba(82, 196, 26, 0.2);
+}
+
+[data-theme="light"] .updateBtn:hover {
+  background: linear-gradient(135deg, #73d13d, #52c41a);
+  box-shadow: 0 4px 12px rgba(82, 196, 26, 0.3);
+}
+
+/* 深色主题 */
+[data-theme="dark"] .updateBtn {
+  background: linear-gradient(135deg, #95de64, #73d13d);
+  color: rgba(0, 0, 0, 0.85);
+  box-shadow: 0 2px 8px rgba(149, 222, 100, 0.3);
+}
+
+[data-theme="dark"] .updateBtn:hover {
+  background: linear-gradient(135deg, #b7eb8f, #95de64);
+  box-shadow: 0 4px 12px rgba(149, 222, 100, 0.4);
+}

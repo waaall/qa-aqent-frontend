@@ -23,6 +23,10 @@ export const config = {
     documentList: import.meta.env.VITE_DOCUMENT_LIST_ENDPOINT || '/documents',
     uploadStatus: import.meta.env.VITE_UPLOAD_STATUS_ENDPOINT || '/upload/status',  // 会拼接 /{taskId}
 
+    // 向量库更新相关
+    updateIndex: import.meta.env.VITE_UPDATE_INDEX_ENDPOINT || '/api/update_index',
+    updateIndexStatus: import.meta.env.VITE_UPDATE_INDEX_STATUS_ENDPOINT || '/api/update_index/status',  // 会拼接 /{taskId}
+
     // 系统相关
     health: import.meta.env.VITE_HEALTH_ENDPOINT || '/health',
     stats: import.meta.env.VITE_STATS_ENDPOINT || '/stats',

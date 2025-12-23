@@ -7,6 +7,8 @@ import {
   UploadDocumentResponse,
   ListDocumentsResponse,
   UploadTaskStatus,
+  UpdateIndexResponse,
+  UpdateTaskStatus,
 } from '@/types';
 import config from '@/config';
 import logger from '@/utils/logger';
@@ -82,6 +84,69 @@ export const documentApi = {
           setTimeout(poll, interval);
         } catch (error) {
           logger.error('Poll upload status failed', error);
+          reject(error);
+        }
+      };
+
+      poll();
+    });
+  },
+
+  /**
+   * 提交更新向量库任务
+   */
+  async updateIndex(): Promise<UpdateIndexResponse> {
+    logger.info('Submitting update index task');
+    return apiClient.post<UpdateIndexResponse>(
+      config.endpoints.updateIndex,
+      {},
+      { timeout: config.timeout.default }
+    );
+  },
+
+  /**
+   * 查询更新任务状态
+   */
+  async getUpdateStatus(taskId: string): Promise<UpdateTaskStatus> {
+    logger.debug('Fetching update status', { taskId });
+    return apiClient.get<UpdateTaskStatus>(
+      `${config.endpoints.updateIndexStatus}/${taskId}`
+    );
+  },
+
+  /**
+   * 轮询更新任务状态
+   * @param taskId 任务ID
+   * @param onProgress 进度回调
+   * @param interval 轮询间隔(ms)，默认 2000
+   */
+  async pollUpdateStatus(
+    taskId: string,
+    onProgress?: (status: UpdateTaskStatus) => void,
+    interval: number = 2000
+  ): Promise<UpdateTaskStatus> {
+    logger.info('Starting update status polling', { taskId });
+
+    return new Promise((resolve, reject) => {
+      const poll = async () => {
+        try {
+          const status = await this.getUpdateStatus(taskId);
+          onProgress?.(status);
+
+          // 终止条件：completed 或 failed
+          if (status.status === 'completed' || status.status === 'failed') {
+            logger.info('Update polling finished', {
+              taskId,
+              finalStatus: status.status,
+            });
+            resolve(status);
+            return;
+          }
+
+          // 继续轮询
+          setTimeout(poll, interval);
+        } catch (error) {
+          logger.error('Poll update status failed', error);
           reject(error);
         }
       };

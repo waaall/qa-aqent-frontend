@@ -11,3 +11,4 @@ export { DocumentManagement } from './DocumentManagement';
 export { DatabaseQuery } from './DatabaseQuery';
 export { SystemInfoModal } from './SystemInfoModal';
 export { UploadDocumentModal } from './UploadDocumentModal';
+export { TaskQueuePanel } from './TaskQueuePanel';

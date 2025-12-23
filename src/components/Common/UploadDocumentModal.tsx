@@ -3,12 +3,12 @@
  */
 
 import React, { useState } from 'react';
-import { Modal, Upload, Select, Progress, Space, Typography, Alert, Button, message } from 'antd';
+import { Modal, Upload, Select, Space, Typography, Button, message } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
 import type { UploadProps } from 'antd';
 import { documentApi } from '@/services';
 import config from '@/config';
-import type { UploadTaskStatus } from '@/types';
+import type { UploadTaskStatus, UnifiedTaskInfo } from '@/types';
 import styles from './UploadDocumentModal.module.css';
 
 const { Dragger } = Upload;
@@ -18,22 +18,22 @@ interface UploadDocumentModalProps {
   open: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  onTaskUpdate?: (taskInfo: UnifiedTaskInfo) => void;
 }
 
 export const UploadDocumentModal: React.FC<UploadDocumentModalProps> = ({
   open,
   onClose,
   onSuccess,
+  onTaskUpdate,
 }) => {
   const defaultLabel = config.documents.labels[0]?.value ?? 'general';
   const [selectedLabel, setSelectedLabel] = useState(defaultLabel);
   const [uploading, setUploading] = useState(false);
-  const [uploadStatus, setUploadStatus] = useState<UploadTaskStatus | null>(null);
   const [currentFile, setCurrentFile] = useState<File | null>(null);
 
   const clearSelectedFile = () => {
     setCurrentFile(null);
-    setUploadStatus(null);
   };
 
   const handleClose = () => {
@@ -66,8 +66,53 @@ export const UploadDocumentModal: React.FC<UploadDocumentModalProps> = ({
     }
 
     setCurrentFile(file);
-    setUploadStatus(null);
     return false;
+  };
+
+  // 映射上传状态
+  const mapUploadStatus = (
+    status: UploadTaskStatus['status']
+  ): UnifiedTaskInfo['status'] => {
+    if (status === 'pending') return 'pending';
+    if (status === 'preprocessing' || status === 'indexing') return 'processing';
+    if (status === 'completed') return 'completed';
+    if (status === 'failed') return 'failed';
+    return 'pending';
+  };
+
+  // 计算进度百分比（复用现有逻辑）
+  const calculateProgress = (status?: UploadTaskStatus): number => {
+    if (!status) return 0;
+
+    const { status: taskStatus, progress } = status;
+
+    if (taskStatus === 'pending') return 10;
+    if (taskStatus === 'preprocessing') {
+      return progress.preprocessing === 'completed' ? 40 : 25;
+    }
+    if (taskStatus === 'indexing') {
+      return progress.indexing === 'completed' ? 100 : 70;
+    }
+    if (taskStatus === 'completed') return 100;
+    if (taskStatus === 'failed') return 0;
+
+    return 0;
+  };
+
+  // 获取阶段描述（复用现有逻辑）
+  const getStage = (status?: UploadTaskStatus): string => {
+    if (!status) return '等待上传';
+
+    const { status: taskStatus, stage } = status;
+
+    if (stage) return stage;
+    if (taskStatus === 'pending') return '等待处理';
+    if (taskStatus === 'preprocessing') return '预处理中';
+    if (taskStatus === 'indexing') return '构建索引中';
+    if (taskStatus === 'completed') return '完成';
+    if (taskStatus === 'failed') return '失败';
+
+    return '处理中';
   };
 
   const handleStartUpload = async () => {
@@ -77,30 +122,75 @@ export const UploadDocumentModal: React.FC<UploadDocumentModalProps> = ({
     }
 
     setUploading(true);
-    setUploadStatus(null);
 
     try {
       // 上传文件
       const response = await documentApi.upload(currentFile, selectedLabel);
 
-      if (response.success && response.task_id) {
-        message.success('文件上传成功，开始处理...');
-
-        // 轮询任务状态
-        const finalStatus = await documentApi.pollUploadStatus(response.task_id, (status) => {
-          setUploadStatus(status);
-        });
-
-        if (finalStatus?.status === 'completed') {
-          message.success('文档处理完成！');
-          onSuccess();
-          setTimeout(() => {
-            handleClose();
-          }, 1500);
-        } else if (finalStatus?.status === 'failed') {
-          message.error('文档处理失败，请重试');
-        }
+      if (!response.success || !response.task_id) {
+        message.error('上传失败，请重试');
+        return;
       }
+
+      const taskId = response.task_id;
+      const filename = currentFile.name;
+
+      message.success('文件上传成功，正在后台处理...');
+
+      // 通知父组件添加任务
+      onTaskUpdate?.({
+        taskId,
+        type: 'upload',
+        filename,
+        status: 'pending',
+        progress: 10,
+        stage: '等待处理',
+        createdAt: Date.now(),
+      });
+
+      // 上传完成后可继续选择文件
+      clearSelectedFile();
+      onClose();
+
+      // 在后台继续轮询任务状态
+      documentApi.pollUploadStatus(taskId, (status) => {
+        // 通知父组件更新任务进度
+        const progress = calculateProgress(status);
+        const stage = getStage(status);
+
+        onTaskUpdate?.({
+          taskId,
+          type: 'upload',
+          filename,
+          status: mapUploadStatus(status.status),
+          progress,
+          stage,
+          createdAt: Date.now(),
+          errors: status.errors,
+        });
+      }).then((finalStatus) => {
+        if (finalStatus?.status === 'completed') {
+          message.success(`文档 ${filename} 处理完成！`);
+
+          // 通知父组件任务完成
+          onTaskUpdate?.({
+            taskId,
+            type: 'upload',
+            filename,
+            status: 'completed',
+            progress: 100,
+            stage: '完成',
+            createdAt: Date.now(),
+            completedAt: Date.now(),
+          });
+
+          onSuccess();
+        } else if (finalStatus?.status === 'failed') {
+          message.error(`文档 ${filename} 处理失败`);
+        }
+      }).catch((error) => {
+        console.error('Poll upload status failed:', error);
+      });
     } catch (error) {
       message.error('上传失败，请重试');
       console.error('Upload error:', error);
@@ -117,39 +207,6 @@ export const UploadDocumentModal: React.FC<UploadDocumentModalProps> = ({
     accept: config.documents.supportedExtensions.join(','),
     beforeUpload: handleFileSelect,
     disabled: uploading,
-  };
-
-  const getProgressPercent = (): number => {
-    if (!uploadStatus) return 0;
-
-    const { status, progress } = uploadStatus;
-
-    if (status === 'pending') return 10;
-    if (status === 'preprocessing') {
-      return progress.preprocessing === 'completed' ? 40 : 25;
-    }
-    if (status === 'indexing') {
-      return progress.indexing === 'completed' ? 100 : 70;
-    }
-    if (status === 'completed') return 100;
-    if (status === 'failed') return 0;
-
-    return 0;
-  };
-
-  const getStatusText = (): string => {
-    if (!uploadStatus) return '等待上传';
-
-    const { status, stage } = uploadStatus;
-
-    if (stage) return stage;
-    if (status === 'pending') return '等待处理';
-    if (status === 'preprocessing') return '预处理中';
-    if (status === 'indexing') return '构建索引中';
-    if (status === 'completed') return '完成';
-    if (status === 'failed') return '失败';
-
-    return '处理中';
   };
 
   return (
@@ -179,7 +236,7 @@ export const UploadDocumentModal: React.FC<UploadDocumentModalProps> = ({
           </p>
         </Dragger>
 
-        {currentFile && !uploading && uploadStatus?.status !== 'completed' && (
+        {currentFile && !uploading && (
           <div className={styles.selectionSection}>
             <div className={styles.fileSummary}>
               <Text className={styles.fileName}>{currentFile.name}</Text>
@@ -218,37 +275,9 @@ export const UploadDocumentModal: React.FC<UploadDocumentModalProps> = ({
           </div>
         )}
 
-        {/* 上传进度 */}
-        {(uploading || uploadStatus) && (
-          <div className={styles.progressSection}>
-            {currentFile && (
-              <Text className={styles.fileName}>{currentFile.name}</Text>
-            )}
-            <Progress
-              percent={getProgressPercent()}
-              status={uploadStatus?.status === 'failed' ? 'exception' : 'active'}
-              strokeColor={{
-                '0%': '#108ee9',
-                '100%': '#87d068',
-              }}
-            />
-            <Text type="secondary" className={styles.statusText}>
-              {getStatusText()}
-            </Text>
-
-            {/* 错误信息 */}
-            {uploadStatus?.errors && uploadStatus.errors.length > 0 && (
-              <Alert
-                message="处理错误"
-                description={uploadStatus.errors.map((err, idx) => (
-                  <div key={idx}>
-                    [{err.stage}] {err.message}
-                  </div>
-                ))}
-                type="error"
-                showIcon
-              />
-            )}
+        {uploading && (
+          <div className={styles.uploadingHint}>
+            <Text type="secondary">正在上传文件，请稍候...</Text>
           </div>
         )}
       </Space>

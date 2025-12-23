@@ -149,3 +149,59 @@ export interface ApiError {
   status?: number;
   code?: string;
 }
+
+// /api/update_index 接口 - 提交更新任务
+export interface UpdateIndexRequest {
+  // 暂无参数，后续可扩展（如指定标签等）
+}
+
+export interface UpdateIndexResponse {
+  success: boolean;
+  message?: string;
+  task_id: string;
+  status_url?: string;
+}
+
+// /api/update_index/status/{task_id} 接口 - 查询更新任务状态
+export interface UpdateTaskStatus {
+  success: boolean;
+  task_id: string;
+  status: 'pending' | 'loading' | 'updating' | 'completed' | 'failed';
+  stage: string | null;  // 状态描述文本
+  progress: {
+    loading: 'in_progress' | 'completed' | 'failed' | null;
+    updating: 'in_progress' | 'completed' | 'failed' | 'skipped' | null;
+  };
+  documents_loaded?: number;  // 已加载的文档数量
+  total_count?: number;       // 总文档数量（如果后端提供）
+  result?: {
+    success?: boolean;
+    mode?: string;
+    documents_checked?: number;
+    documents_added?: number;
+    message?: string;
+    [key: string]: unknown;
+  };
+  errors: Array<{
+    stage: string;
+    message: string;
+    timestamp: string;
+  }>;
+  created_at: string;
+  completed_at?: string;
+}
+
+// 统一任务类型（用于 UI 展示）
+export type TaskType = 'upload' | 'update';
+
+export interface UnifiedTaskInfo {
+  taskId: string;
+  type: TaskType;
+  filename?: string;  // upload 任务有
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  progress: number;   // 0-100
+  stage: string;
+  createdAt: number;
+  completedAt?: number;
+  errors?: Array<{ stage: string; message: string }>;
+}

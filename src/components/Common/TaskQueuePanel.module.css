@@ -1,0 +1,172 @@
+.panel {
+  margin-bottom: 16px;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+/* 浅色主题 */
+[data-theme="light"] .panel {
+  background: linear-gradient(135deg, rgba(24, 144, 255, 0.03), rgba(24, 144, 255, 0.01));
+  border: 1px solid rgba(24, 144, 255, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* 深色主题 */
+[data-theme="dark"] .panel {
+  background: linear-gradient(135deg, rgba(123, 158, 245, 0.08), rgba(123, 158, 245, 0.03));
+  border: 1px solid rgba(123, 158, 245, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="dark"] .header {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.count {
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+[data-theme="light"] .count {
+  background: rgba(24, 144, 255, 0.1);
+  color: #096dd9;
+}
+
+[data-theme="dark"] .count {
+  background: rgba(123, 158, 245, 0.15);
+  color: #9BB8F7;
+}
+
+.clearBtn {
+  font-size: 12px;
+  padding: 0 8px;
+  height: 24px;
+}
+
+.taskList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.taskItem {
+  padding: 12px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+[data-theme="light"] .taskItem {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .taskItem:hover {
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .taskItem {
+  background: rgba(30, 34, 51, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .taskItem:hover {
+  background: rgba(30, 34, 51, 0.6);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.taskHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.taskTitle {
+  font-size: 13px;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.removeBtn {
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.removeBtn:hover {
+  opacity: 1;
+}
+
+.progress {
+  margin-bottom: 8px;
+}
+
+.taskFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stage {
+  font-size: 12px;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+}
+
+.time {
+  font-size: 11px;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+}
+
+.errorAlert {
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+/* 滚动条样式 */
+.taskList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.taskList::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.taskList::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+[data-theme="dark"] .taskList::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.taskList::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .taskList::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}

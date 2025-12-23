@@ -4,7 +4,8 @@
       "Bash(npm run type-check:*)",
       "Skill(frontend-design)",
       "Bash(npm run dev:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(grep:*)"
     ]
   }
 }
