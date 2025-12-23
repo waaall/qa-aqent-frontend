@@ -104,6 +104,25 @@ export const darkTheme: ThemeConfig = {
     Tooltip: {
       colorTextLightSolid: 'rgba(255, 255, 255, 0.88)',
     },
+    Alert: {
+      // Info 类型提示框配置
+      colorInfoBg: 'rgba(123, 158, 245, 0.15)',
+      colorInfoBorder: 'rgba(123, 158, 245, 0.3)',
+      colorInfo: '#7B9EF5',
+      colorInfoText: 'rgba(255, 255, 255, 0.88)',
+      // Success 类型提示框
+      colorSuccessBg: 'rgba(94, 194, 105, 0.15)',
+      colorSuccessBorder: 'rgba(94, 194, 105, 0.3)',
+      colorSuccessText: 'rgba(255, 255, 255, 0.88)',
+      // Warning 类型提示框
+      colorWarningBg: 'rgba(250, 173, 20, 0.15)',
+      colorWarningBorder: 'rgba(250, 173, 20, 0.3)',
+      colorWarningText: 'rgba(255, 255, 255, 0.88)',
+      // Error 类型提示框
+      colorErrorBg: 'rgba(245, 87, 108, 0.15)',
+      colorErrorBorder: 'rgba(245, 87, 108, 0.3)',
+      colorErrorText: 'rgba(255, 255, 255, 0.88)',
+    },
   },
 };
 

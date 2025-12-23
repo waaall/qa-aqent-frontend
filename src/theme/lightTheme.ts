@@ -72,6 +72,25 @@ export const lightTheme: ThemeConfig = {
       borderRadiusLG: 16,
       paddingContentHorizontalLG: 24,
     },
+    Alert: {
+      // Info 类型提示框配置
+      colorInfoBg: 'rgba(91, 141, 239, 0.1)',
+      colorInfoBorder: 'rgba(91, 141, 239, 0.2)',
+      colorInfo: '#5B8DEF',
+      colorInfoText: 'rgba(0, 0, 0, 0.88)',
+      // Success 类型提示框
+      colorSuccessBg: 'rgba(82, 196, 26, 0.1)',
+      colorSuccessBorder: 'rgba(82, 196, 26, 0.2)',
+      colorSuccessText: 'rgba(0, 0, 0, 0.88)',
+      // Warning 类型提示框
+      colorWarningBg: 'rgba(250, 173, 20, 0.1)',
+      colorWarningBorder: 'rgba(250, 173, 20, 0.2)',
+      colorWarningText: 'rgba(0, 0, 0, 0.88)',
+      // Error 类型提示框
+      colorErrorBg: 'rgba(245, 87, 108, 0.1)',
+      colorErrorBorder: 'rgba(245, 87, 108, 0.2)',
+      colorErrorText: 'rgba(0, 0, 0, 0.88)',
+    },
   },
 };
 
