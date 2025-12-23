@@ -299,6 +299,22 @@ DELETE /api/context/{session_id}      # 删除会话
 POST /api/context/{session_id}/refresh # 刷新会话
 ```
 
+#### 历史对话解析（Context）
+
+入口：`GET /api/context/{session_id}/info`（`VITE_CONTEXT_INFO_ENDPOINT`）。
+
+解析流程：
+1. `context.ctx_json` 为 JSON 字符串，先反序列化为对象。
+2. 读取 `ctx.state.state_data._data.memory`（字符串），再次反序列化。
+3. 从 `value.chat_store.store[chat_store_key]` 取出历史数组（`chat_store_key` 缺省为 `chat_history`）。
+
+消息结构与展示规则（见 `src/services/chatApi.ts`）：
+1. 消息结构：`{ role, additional_kwargs, blocks: [{ block_type: "text", text }] }`
+2. 仅展示 `role` 为 `user` / `assistant` 的消息，忽略 `tool`。
+3. `content` 取 `blocks[].text` 并用 `\n` 连接。
+4. 用户消息若包含 `[用户查询]`，仅展示该标记后的内容；否则原样展示。
+5. 时间戳取 `additional_kwargs.timestamp`（number），缺失则用当前时间兜底。
+
 ### 思考流（SSE）
 
 - 端点：默认 `VITE_STREAM_ENDPOINT=/api/react_stream`，与 `VITE_API_BASE_URL` 拼接。

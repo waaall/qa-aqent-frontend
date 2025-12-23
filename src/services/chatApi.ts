@@ -41,6 +41,14 @@ const extractMessageContent = (item: unknown): string => {
     .join('\n');
 };
 
+const normalizeUserContent = (content: string): string => {
+  const marker = '[用户查询]';
+  const markerIndex = content.indexOf(marker);
+  if (markerIndex === -1) return content;
+  const afterMarker = content.slice(markerIndex + marker.length).trim();
+  return afterMarker || content;
+};
+
 const extractMessageRole = (item: unknown): 'user' | 'assistant' => {
   if (isRecord(item) && item.role === 'user') return 'user';
   if (isRecord(item) && item.role === 'assistant') return 'assistant';
@@ -103,9 +111,12 @@ const mapContextMessages = (
   items
     .filter(isDisplayableRole)
     .map((item) => {
-      const content = extractMessageContent(item);
+      const role = extractMessageRole(item);
+      const content = role === 'user'
+        ? normalizeUserContent(extractMessageContent(item))
+        : extractMessageContent(item);
       return {
-        role: extractMessageRole(item),
+        role,
         content,
         timestamp: extractMessageTimestamp(item),
         metadata: extractMessageMetadata(item),
