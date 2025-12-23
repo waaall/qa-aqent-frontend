@@ -41,15 +41,8 @@ export const config = {
     upload: 300000,  // 5分钟
   },
 
-  // 上传配置
-  upload: {
-    pollInterval: parseInt(import.meta.env.VITE_UPLOAD_POLL_INTERVAL || '2000', 10),
-    maxRetries: parseInt(import.meta.env.VITE_UPLOAD_MAX_RETRIES || '3', 10),
-  },
-
   // 会话配置
   session: {
-    maxHistoryLength: 50,
     storageKey: 'qa_agent_sessions',
   },
 
@@ -62,7 +55,7 @@ export const config = {
   // 主题配置
   theme: {
     storageKey: 'qa_agent_theme_mode',
-    defaultMode: 'auto' as 'light' | 'dark' | 'auto',
+    defaultMode: 'auto' as const,
   },
 
   // 思考流配置
@@ -87,8 +80,5 @@ export const config = {
     maxFileSize: 50 * 1024 * 1024, // 50MB
   },
 } as const;
-
-// 保持向后兼容的别名
-export const chatEndpoint = config.endpoints.chat;
 
 export default config;

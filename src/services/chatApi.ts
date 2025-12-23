@@ -256,14 +256,6 @@ export const chatApi = {
     return apiClient.delete<SuccessResponse>(`${config.endpoints.contextDelete}/${sessionId}`);
   },
 
-  /**
-   * 刷新会话（已改为 Context 接口）
-   */
-  async refreshSession(sessionId: string): Promise<SuccessResponse> {
-    logger.debug('Refreshing session context', { sessionId });
-    return apiClient.post<SuccessResponse>(`${config.endpoints.contextRefresh}/${sessionId}/refresh`);
-  },
-
 };
 
 export default chatApi;

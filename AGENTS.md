@@ -4,10 +4,15 @@
 
 - `src/`: React + TypeScript source
   - `components/`: UI (Chat, Sidebar, Layout, Common)
+    - `Common/TaskQueuePanel.tsx`: unified task progress display
   - `hooks/`: reusable logic (`useChat`, `useSession`, streaming helpers)
   - `services/`: API clients (Axios) and endpoints
+    - `documentApi.ts`: document upload/list + vector index update
   - `stores/`: Zustand state (`chatStore.ts`, `sessionStore.ts`)
-  - `utils/`, `types/`, `config/`: shared helpers, types, app config
+  - `utils/`: shared helpers
+    - `taskStorage.ts`: task persistence (localStorage)
+    - `formatters.ts`: date/size formatting
+  - `types/`, `config/`: types, app config
 - `public/`: static assets served as-is
 - `docs/`: project documentation
 - `dist/`: production build output (generated)

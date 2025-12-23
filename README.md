@@ -33,7 +33,8 @@
 - 思考流（SSE）展示：路由决策、工具调用/结果、LLM 思考过程流式呈现
 - 停止生成与降级：支持中断 SSE，失败自动回退到一次性响应
 - React.memo 性能优化
-- 文档管理：文档列表展示、上传（支持 PDF/Markdown）、标签分类、文件信息查看
+- 文档管理：文档列表展示、上传（支持 PDF/Markdown）、标签分类、文件信息查看、向量库更新
+- 统一任务队列：上传和更新任务进度统一展示，支持后台轮询和任务持久化
 - 系统信息监控：系统健康状态、LLM 提供商信息、向量库统计一体化展示
 - 数据库查询工具：支持按数据库名称和来源查询数据库元信息
 
@@ -119,6 +120,7 @@ frontend/
 │   │       ├── SettingsModal.tsx      # 设置弹窗
 │   │       ├── DocumentManagement.tsx # 文档管理
 │   │       ├── UploadDocumentModal.tsx # 文档上传
+│   │       ├── TaskQueuePanel.tsx     # 任务队列面板
 │   │       ├── DatabaseQuery.tsx      # 数据库查询
 │   │       └── SystemInfoModal.tsx    # 系统信息
 │   ├── services/           # API 服务
@@ -145,7 +147,9 @@ frontend/
 │   │   └── api.ts
 │   ├── utils/              # 工具函数
 │   │   ├── logger.ts                  # 日志工具
-│   │   ├── storage.ts                 # 本地存储（防抖优化）
+│   │   ├── storage.ts                 # 会话存储（防抖优化）
+│   │   ├── taskStorage.ts             # 任务持久化工具
+│   │   ├── formatters.ts              # 格式化工具
 │   │   ├── validation.ts              # 输入验证
 │   │   └── helpers.ts                 # 辅助函数
 │   ├── config/             # 配置
@@ -258,9 +262,18 @@ VITE_THINKING_PREVIEW_MAX_LENGTH=500
 - **上传文档**：
   - 支持 PDF 和 Markdown 格式
   - 拖拽或点击上传
-  - 选择文档标签分类（通用、技术、操作、维护、安全）
-  - 实时显示上传进度和处理状态
-  - 异步处理：上传后自动预处理和索引
+  - 选择文档标签分类（通用、操作规程、事故案例）
+  - 后台处理：上传后立即关闭弹窗，任务在后台继续处理
+  - 异步处理：自动预处理和索引
+- **更新向量库**：
+  - 一键更新所有文档的向量索引
+  - 实时显示更新进度（加载文档 → 更新索引 → 完成）
+  - 后台处理：支持页面刷新后继续跟踪任务进度
+- **统一任务队列**：
+  - 统一展示上传和更新任务的实时进度
+  - 显示详细的处理阶段和进度百分比
+  - 任务持久化：刷新页面后自动恢复任务状态
+  - 支持删除单个任务或批量清除已完成任务
 - **文档信息**：查看文件详情（大小、修改时间、存储路径）
 - **标签筛选**：按文档类型快速筛选
 - **主题适配**：完整支持浅色/深色主题
@@ -326,19 +339,40 @@ POST /api/context/{session_id}/refresh # 刷新会话
 ### 文档管理
 
 ```typescript
-GET /api/documents                    # 获取文档列表
-POST /api/documents/upload            # 上传文档（multipart/form-data）
-  - file: File                        # 文件对象
-  - label: string                     # 文档标签（general/technical/operation/maintenance/safety）
-GET /api/documents/upload_status/{task_id}  # 查询上传状态
-DELETE /api/documents/{filename}      # 删除文档
+GET /api/documents                           # 获取文档列表
+POST /api/upload                             # 上传文档（multipart/form-data）
+  - file: File                               # 文件对象
+  - label: string                            # 文档标签（general/procedure/incident_case）
+GET /api/upload/status/{task_id}             # 查询上传任务状态
+DELETE /api/documents/{filename}             # 删除文档（API 已支持，UI 暂未提供）
 ```
 
 文档上传流程：
-1. 客户端通过 POST `/api/documents/upload` 上传文件和标签
+1. 客户端通过 POST `/api/upload` 上传文件和标签
 2. 服务器返回 `task_id`
-3. 客户端轮询 GET `/api/documents/upload_status/{task_id}` 查询处理进度
-4. 状态包括：`pending`（等待）、`preprocessing`（预处理中）、`indexing`（索引中）、`completed`（完成）、`failed`（失败）
+3. 客户端轮询 GET `/api/upload/status/{task_id}` 查询处理进度（2 秒间隔）
+4. 上传状态：`pending`（等待）、`preprocessing`（预处理中）、`indexing`（索引中）、`completed`（完成）、`failed`（失败）
+5. 任务状态保存到 localStorage，页面刷新后自动恢复并继续轮询
+
+### 向量库更新
+
+```typescript
+POST /api/update_index                       # 提交更新向量库任务
+  - 无参数，更新所有文档的向量索引
+GET /api/update_index/status/{task_id}       # 查询更新任务状态
+```
+
+向量库更新流程：
+1. 客户端通过 POST `/api/update_index` 提交更新任务
+2. 服务器返回 `task_id`
+3. 客户端轮询 GET `/api/update_index/status/{task_id}` 查询处理进度（2 秒间隔）
+4. 更新状态：`pending`（等待）、`loading`（加载文档中）、`updating`（更新索引中）、`completed`（完成）、`failed`（失败）
+5. 状态响应包含：
+   - `stage`: 当前阶段描述
+   - `progress`: 详细进度（loading、updating）
+   - `documents_loaded`: 已加载的文档数量
+   - `total_count`: 总文档数量（可选）
+   - `errors`: 错误信息数组
 
 ### 系统信息
 
@@ -536,6 +570,7 @@ npm install
 2. **消息重发**: 暂未实现重新生成功能
 3. **部分浏览器兼容**: 老旧浏览器或特定代理环境下 SSE 可能被拦截，无法展示思考流，会自动降级为一次性响应
 4. **文档删除**: 文档列表暂未提供删除功能入口（API 已支持）
+5. **上传任务恢复**: 页面刷新后上传任务的轮询暂未自动恢复（更新任务已支持）
 
 ## 安全性
 

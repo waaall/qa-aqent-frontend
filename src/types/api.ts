@@ -151,10 +151,6 @@ export interface ApiError {
 }
 
 // /api/update_index 接口 - 提交更新任务
-export interface UpdateIndexRequest {
-  // 暂无参数，后续可扩展（如指定标签等）
-}
-
 export interface UpdateIndexResponse {
   success: boolean;
   message?: string;

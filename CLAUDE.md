@@ -63,6 +63,13 @@ chatApi.sendMessage({ query, session_id?, reset? })
 chatApi.getSessionHistory(sessionId)
 chatApi.deleteSession(sessionId)
 
+// Document API (src/services/documentApi.ts)
+documentApi.upload(file, label)
+documentApi.list()
+documentApi.pollUploadStatus(taskId, onProgress?)
+documentApi.updateIndex()
+documentApi.pollUpdateStatus(taskId, onProgress?)
+
 // Always use apiClient.get/post/put/delete for consistency
 ```
 
@@ -85,6 +92,7 @@ AppLayout (Layout/AppLayout.tsx)
 - Each component has a `.module.css` file for scoped styling
 - Export via `index.ts` barrel files
 - Use `@/` alias for absolute imports (configured in vite.config.ts and tsconfig.json)
+- New components: TaskQueuePanel for unified task progress display
 
 ### Message Rendering
 
@@ -100,7 +108,7 @@ AppLayout (Layout/AppLayout.tsx)
 - 🔌 api - Real-time API data
 - 💬 general - Generic conversation
 
-### Logger Utility
+### Utilities
 
 **logger** ([src/utils/logger.ts](src/utils/logger.ts)) provides environment-aware logging:
 - Controlled by `VITE_LOG_LEVEL` env variable
@@ -108,6 +116,11 @@ AppLayout (Layout/AppLayout.tsx)
 - Production default: error-only
 - Development default: debug
 - Always use logger instead of console.log/error
+
+**taskStorage** ([src/utils/taskStorage.ts](src/utils/taskStorage.ts)) provides task persistence:
+- Saves upload and update tasks to localStorage (key: `qa_agent_tasks`)
+- Auto-recovers unfinished tasks on page reload
+- Methods: save, load, add, update, remove, clearCompleted, getActiveTasks
 
 ## Type System
 
@@ -124,6 +137,8 @@ Core types in `src/types/`:
 **api.ts**:
 - `ChatRequest/ChatResponse` - Primary chat interface types
 - `QueryType` - Union type: 'knowledge' | 'sql' | 'api' | 'general'
+- `UpdateIndexResponse/UpdateTaskStatus` - Vector index update types
+- `UnifiedTaskInfo` - Unified task info for UI display (upload + update)
 
 ## Key Patterns
 
@@ -182,3 +197,7 @@ setMessages(messages);
 5. **Loading states** - Always check `isLoading` from `useChat` before allowing new messages. Loading placeholder message is added/removed automatically.
 
 6. **Path aliases** - Use `@/` for imports, not relative paths like `../../../`. Configured in both tsconfig.json and vite.config.ts.
+
+7. **Task queue pattern** - Upload/update tasks use unified TaskQueuePanel component. Tasks persist to localStorage and auto-recover on page reload. Always update parent component via onTaskUpdate callback.
+
+8. **Background polling** - After file upload, modal closes immediately and task continues polling in background. Progress shows in TaskQueuePanel.

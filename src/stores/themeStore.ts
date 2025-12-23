@@ -2,6 +2,7 @@
  * 主题状态管理 - Zustand Store
  */
 import { create } from 'zustand';
+import config from '@/config';
 
 type ThemeMode = 'light' | 'dark' | 'auto';
 type ThemeType = 'light' | 'dark'; // 实际应用的主题
@@ -24,20 +25,20 @@ interface ThemeState {
 // 从 localStorage 加载主题偏好
 const loadThemeFromStorage = (): ThemeMode => {
   try {
-    const stored = localStorage.getItem('qa_agent_theme_mode');
+    const stored = localStorage.getItem(config.theme.storageKey);
     if (stored === 'light' || stored === 'dark' || stored === 'auto') {
       return stored;
     }
   } catch (e) {
     console.warn('Failed to load theme preference', e);
   }
-  return 'auto'; // 默认跟随系统
+  return config.theme.defaultMode;
 };
 
 // 保存主题偏好到 localStorage
 const saveThemeToStorage = (mode: ThemeMode) => {
   try {
-    localStorage.setItem('qa_agent_theme_mode', mode);
+    localStorage.setItem(config.theme.storageKey, mode);
   } catch (e) {
     console.warn('Failed to save theme preference', e);
   }

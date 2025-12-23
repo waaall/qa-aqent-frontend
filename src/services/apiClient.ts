@@ -83,28 +83,8 @@ class ApiClient {
     return response.data;
   }
 
-  async put<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
-    const response = await this.instance.put<T>(url, data, config);
-    return response.data;
-  }
-
   async delete<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.instance.delete<T>(url, config);
-    return response.data;
-  }
-
-  async upload<T>(url: string, file: File, uploadConfig?: AxiosRequestConfig): Promise<T> {
-    const formData = new FormData();
-    formData.append('file', file);
-
-    const response = await this.instance.post<T>(url, formData, {
-      ...uploadConfig,
-      timeout: 300000, // 5 minutes for uploads
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-
     return response.data;
   }
 }

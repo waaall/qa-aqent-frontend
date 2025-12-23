@@ -16,15 +16,3 @@ export const validateUserInput = (input: string): string => {
 
   return cleaned;
 };
-
-/**
- * 验证URL是否安全
- */
-export const isSafeUrl = (url: string): boolean => {
-  try {
-    const parsed = new URL(url);
-    return ['http:', 'https:'].includes(parsed.protocol);
-  } catch {
-    return false;
-  }
-};

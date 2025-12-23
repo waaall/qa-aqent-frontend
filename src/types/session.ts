@@ -9,16 +9,3 @@ export interface Session {
   last_accessed: number;
   message_count: number;
 }
-
-export interface SessionInfo {
-  session_id: string;
-  messages: Array<{
-    role: string;
-    content: string;
-    timestamp: number;
-    metadata?: Record<string, unknown>;
-  }>;
-  metadata?: Record<string, unknown>;
-  created_at: number;
-  last_accessed: number;
-}
