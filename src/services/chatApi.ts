@@ -16,6 +16,99 @@ import logger from '@/utils/logger';
 import { readSseStream } from '@/utils/sseParser';
 import { joinUrl } from '@/utils/urlHelper';
 
+const parseJsonString = (value: unknown): unknown => {
+  if (typeof value !== 'string') return value;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return value;
+  }
+};
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null;
+
+const extractBlockText = (block: unknown): string => {
+  if (isRecord(block) && typeof block.text === 'string') return block.text;
+  return '';
+};
+
+const extractMessageContent = (item: unknown): string => {
+  if (!isRecord(item) || !Array.isArray(item.blocks)) return '';
+  return item.blocks
+    .map(extractBlockText)
+    .filter((text) => text.trim() !== '')
+    .join('\n');
+};
+
+const extractMessageRole = (item: unknown): 'user' | 'assistant' => {
+  if (isRecord(item) && item.role === 'user') return 'user';
+  if (isRecord(item) && item.role === 'assistant') return 'assistant';
+  return 'assistant';
+};
+
+const extractMessageTimestamp = (item: unknown): number => {
+  if (isRecord(item) && isRecord(item.additional_kwargs)) {
+    const extra = item.additional_kwargs;
+    if (typeof extra.timestamp === 'number') return extra.timestamp;
+  }
+  return Date.now();
+};
+
+const extractMessageMetadata = (item: unknown): Record<string, unknown> | undefined => {
+  if (!isRecord(item)) return undefined;
+  if (isRecord(item.additional_kwargs)) return item.additional_kwargs;
+  return undefined;
+};
+
+const extractChatHistoryFromMemory = (memory: unknown): unknown[] | null => {
+  const parsed = parseJsonString(memory);
+  if (!isRecord(parsed) || !isRecord(parsed.value)) return null;
+
+  const value = parsed.value;
+  const chatStoreKey =
+    typeof value.chat_store_key === 'string' ? value.chat_store_key : 'chat_history';
+  if (isRecord(value.chat_store) && isRecord(value.chat_store.store)) {
+    const history = value.chat_store.store[chatStoreKey];
+    if (Array.isArray(history)) return history;
+  }
+
+  return null;
+};
+
+const extractContextHistory = (ctx: unknown): unknown[] | null => {
+  if (
+    isRecord(ctx) &&
+    isRecord(ctx.state) &&
+    isRecord(ctx.state.state_data) &&
+    isRecord(ctx.state.state_data._data)
+  ) {
+    return extractChatHistoryFromMemory(ctx.state.state_data._data.memory);
+  }
+
+  return null;
+};
+
+const mapContextMessages = (
+  items: unknown[]
+): Array<{
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: number;
+  metadata?: Record<string, unknown>;
+}> =>
+  items
+    .map((item) => {
+      const content = extractMessageContent(item);
+      return {
+        role: extractMessageRole(item),
+        content,
+        timestamp: extractMessageTimestamp(item),
+        metadata: extractMessageMetadata(item),
+      };
+    })
+    .filter((message) => message.content.trim() !== '');
+
 export const chatApi = {
   /**
    * 发送聊天消息（一次性返回）
@@ -117,21 +210,18 @@ export const chatApi = {
     // 解析 ctx_json 字段获取历史消息
     if (response.context.ctx_json) {
       try {
-        const ctx = JSON.parse(response.context.ctx_json);
-        // ctx 可能直接包含 messages 数组，或者在 memory.chat_history 中
-        if (ctx.messages && Array.isArray(ctx.messages)) {
-          messages = ctx.messages;
-        } else if (ctx.memory?.chat_history && Array.isArray(ctx.memory.chat_history)) {
-          messages = ctx.memory.chat_history;
+        const ctxJson = response.context.ctx_json as unknown;
+        const ctx = parseJsonString(ctxJson);
+        const history = extractContextHistory(ctx);
+
+        if (history) {
+          messages = mapContextMessages(history);
         } else {
-          logger.warn('ctx_json does not contain messages array', { ctx });
+          logger.warn('ctx_json does not contain recognizable message format', { ctx });
         }
       } catch (error) {
         logger.error('Failed to parse ctx_json', error);
       }
-    } else if (response.context.messages) {
-      // 兼容直接返回 messages 的情况
-      messages = response.context.messages;
     }
 
     // 转换为 SessionHistoryResponse 格式以保持向后兼容
