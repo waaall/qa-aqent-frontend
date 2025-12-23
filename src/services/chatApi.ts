@@ -47,6 +47,9 @@ const extractMessageRole = (item: unknown): 'user' | 'assistant' => {
   return 'assistant';
 };
 
+const isDisplayableRole = (item: unknown): item is { role: 'user' | 'assistant' } =>
+  isRecord(item) && (item.role === 'user' || item.role === 'assistant');
+
 const extractMessageTimestamp = (item: unknown): number => {
   if (isRecord(item) && isRecord(item.additional_kwargs)) {
     const extra = item.additional_kwargs;
@@ -98,6 +101,7 @@ const mapContextMessages = (
   metadata?: Record<string, unknown>;
 }> =>
   items
+    .filter(isDisplayableRole)
     .map((item) => {
       const content = extractMessageContent(item);
       return {
