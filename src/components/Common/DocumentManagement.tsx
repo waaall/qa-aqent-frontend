@@ -2,7 +2,7 @@
  * 文档管理组件
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Table, Button, Tag, Space, Typography, Tooltip, Empty, message } from 'antd';
 import {
   UploadOutlined,
@@ -23,6 +23,66 @@ import styles from './DocumentManagement.module.css';
 
 const { Text } = Typography;
 
+// 计算更新任务进度
+const calculateUpdateProgress = (status: UpdateTaskStatus): number => {
+  if (status.status === 'pending') return 5;
+
+  if (status.status === 'loading') {
+    // 如果有 total_count，使用精确计算
+    if (status.total_count && status.documents_loaded !== undefined) {
+      return Math.floor((status.documents_loaded / status.total_count) * 50);
+    }
+    return status.progress.loading === 'completed' ? 50 : 25;
+  }
+
+  if (status.status === 'updating') {
+    return 50 + (status.progress.updating === 'completed' ? 45 : 25);
+  }
+
+  if (status.status === 'completed') return 100;
+  if (status.status === 'failed') return 0;
+
+  return 0;
+};
+
+// 映射状态
+const mapUpdateStatus = (
+  status: UpdateTaskStatus['status']
+): UnifiedTaskInfo['status'] => {
+  if (status === 'pending') return 'pending';
+  if (status === 'loading' || status === 'updating') return 'processing';
+  if (status === 'completed') return 'completed';
+  if (status === 'failed') return 'failed';
+  return 'pending';
+};
+
+// 获取默认阶段描述
+const getDefaultStage = (status: string): string => {
+  const stageMap: Record<string, string> = {
+    pending: '等待处理',
+    loading: '加载文档中',
+    updating: '更新索引中',
+    completed: '完成',
+    failed: '失败',
+  };
+  return stageMap[status] || '处理中';
+};
+
+const getLabelConfig = (labelValue: string) => {
+  return config.documents.labels.find((l) => l.value === labelValue) || {
+    value: labelValue,
+    label: labelValue,
+    color: 'default',
+  };
+};
+
+const getFileIcon = (fileType: string) => {
+  if (fileType === '.pdf') {
+    return <FilePdfOutlined style={{ color: '#f5222d', fontSize: 16 }} />;
+  }
+  return <FileTextOutlined style={{ color: '#1890ff', fontSize: 16 }} />;
+};
+
 export const DocumentManagement: React.FC = () => {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(false);
@@ -32,7 +92,7 @@ export const DocumentManagement: React.FC = () => {
   const [tasks, setTasks] = useState<UnifiedTaskInfo[]>([]);
   const [updating, setUpdating] = useState(false);
 
-  const fetchDocuments = async () => {
+  const fetchDocuments = useCallback(async () => {
     setLoading(true);
     try {
       const response = await documentApi.list();
@@ -44,30 +104,10 @@ export const DocumentManagement: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  // 加载持久化的任务并恢复轮询
-  useEffect(() => {
-    fetchDocuments();
-
-    const savedTasks = taskStorage.load();
-    setTasks(savedTasks);
-
-    // 恢复未完成任务的轮询
-    const activeTasks = savedTasks.filter(
-      t => t.status !== 'completed' && t.status !== 'failed'
-    );
-    activeTasks.forEach(task => {
-      if (task.type === 'update') {
-        resumeUpdateTask(task.taskId);
-      }
-      // 上传任务的恢复由 UploadDocumentModal 组件处理
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // 仅在组件挂载时执行一次，用于初始化和恢复任务
+  }, []);
 
   // 更新任务状态（通用）
-  const updateTaskStatus = (taskId: string, updates: Partial<UnifiedTaskInfo>) => {
+  const updateTaskStatus = useCallback((taskId: string, updates: Partial<UnifiedTaskInfo>) => {
     setTasks(prev => {
       const updated = prev.map(t =>
         t.taskId === taskId ? { ...t, ...updates } : t
@@ -75,55 +115,10 @@ export const DocumentManagement: React.FC = () => {
       taskStorage.save(updated);
       return updated;
     });
-  };
-
-  // 计算更新任务进度
-  const calculateUpdateProgress = (status: UpdateTaskStatus): number => {
-    if (status.status === 'pending') return 5;
-
-    if (status.status === 'loading') {
-      // 如果有 total_count，使用精确计算
-      if (status.total_count && status.documents_loaded !== undefined) {
-        return Math.floor((status.documents_loaded / status.total_count) * 50);
-      }
-      return status.progress.loading === 'completed' ? 50 : 25;
-    }
-
-    if (status.status === 'updating') {
-      return 50 + (status.progress.updating === 'completed' ? 45 : 25);
-    }
-
-    if (status.status === 'completed') return 100;
-    if (status.status === 'failed') return 0;
-
-    return 0;
-  };
-
-  // 映射状态
-  const mapUpdateStatus = (
-    status: UpdateTaskStatus['status']
-  ): UnifiedTaskInfo['status'] => {
-    if (status === 'pending') return 'pending';
-    if (status === 'loading' || status === 'updating') return 'processing';
-    if (status === 'completed') return 'completed';
-    if (status === 'failed') return 'failed';
-    return 'pending';
-  };
-
-  // 获取默认阶段描述
-  const getDefaultStage = (status: string): string => {
-    const stageMap: Record<string, string> = {
-      pending: '等待处理',
-      loading: '加载文档中',
-      updating: '更新索引中',
-      completed: '完成',
-      failed: '失败',
-    };
-    return stageMap[status] || '处理中';
-  };
+  }, []);
 
   // 更新任务进度（更新任务）
-  const updateTaskProgress = (taskId: string, status: UpdateTaskStatus) => {
+  const updateTaskProgress = useCallback((taskId: string, status: UpdateTaskStatus) => {
     const progress = calculateUpdateProgress(status);
     const stage = status.stage || getDefaultStage(status.status);
 
@@ -139,10 +134,10 @@ export const DocumentManagement: React.FC = () => {
     }
 
     updateTaskStatus(taskId, updates);
-  };
+  }, [updateTaskStatus]);
 
   // 轮询更新任务
-  const pollUpdateTask = async (taskId: string) => {
+  const pollUpdateTask = useCallback(async (taskId: string) => {
     try {
       const finalStatus = await documentApi.pollUpdateStatus(
         taskId,
@@ -162,16 +157,35 @@ export const DocumentManagement: React.FC = () => {
       console.error('Poll update task failed:', error);
       updateTaskStatus(taskId, { status: 'failed', progress: 0 });
     }
-  };
+  }, [fetchDocuments, updateTaskProgress, updateTaskStatus]);
 
   // 恢复更新任务轮询
-  const resumeUpdateTask = async (taskId: string) => {
+  const resumeUpdateTask = useCallback(async (taskId: string) => {
     try {
       await pollUpdateTask(taskId);
     } catch (error) {
       console.error('Resume update task failed:', error);
     }
-  };
+  }, [pollUpdateTask]);
+
+  // 加载持久化的任务并恢复轮询
+  useEffect(() => {
+    fetchDocuments();
+
+    const savedTasks = taskStorage.load();
+    setTasks(savedTasks);
+
+    // 恢复未完成任务的轮询
+    const activeTasks = savedTasks.filter(
+      t => t.status !== 'completed' && t.status !== 'failed'
+    );
+    activeTasks.forEach(task => {
+      if (task.type === 'update') {
+        resumeUpdateTask(task.taskId);
+      }
+      // 上传任务的恢复由 UploadDocumentModal 组件处理
+    });
+  }, [fetchDocuments, resumeUpdateTask]);
 
   // 处理更新向量库
   const handleUpdateIndex = async () => {
@@ -246,21 +260,6 @@ export const DocumentManagement: React.FC = () => {
       taskStorage.save(updated);
       return updated;
     });
-  };
-
-  const getLabelConfig = (labelValue: string) => {
-    return config.documents.labels.find((l) => l.value === labelValue) || {
-      value: labelValue,
-      label: labelValue,
-      color: 'default',
-    };
-  };
-
-  const getFileIcon = (fileType: string) => {
-    if (fileType === '.pdf') {
-      return <FilePdfOutlined style={{ color: '#f5222d', fontSize: 16 }} />;
-    }
-    return <FileTextOutlined style={{ color: '#1890ff', fontSize: 16 }} />;
   };
 
   const columns: ColumnsType<Document> = [
