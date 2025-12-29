@@ -69,7 +69,10 @@ export const InputBox: React.FC<InputBoxProps> = ({
 
   return (
     <div className={styles.container}>
-      <div className={styles.inputWrapper}>
+      <div
+        className={styles.inputWrapper}
+        style={{ maxWidth: config.ui.containerMaxWidth.message }}
+      >
         <TextArea
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -120,12 +123,18 @@ export const InputBox: React.FC<InputBoxProps> = ({
 
       {/* 流式连接状态提示 */}
       {streamStatus === 'connecting' && (
-        <div className={styles.statusHint}>
+        <div
+          className={styles.statusHint}
+          style={{ maxWidth: config.ui.containerMaxWidth.message }}
+        >
           <LoadingDots /> 正在建立思考流连接...
         </div>
       )}
 
-      <div className={styles.hint}>
+      <div
+        className={styles.hint}
+        style={{ maxWidth: config.ui.containerMaxWidth.message }}
+      >
         提示: 您可以询问电厂运维相关问题，获取实时数据、历史记录或知识库信息
       </div>
     </div>

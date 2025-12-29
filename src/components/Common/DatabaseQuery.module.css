@@ -159,7 +159,7 @@
 .dbInfo {
   border-radius: 6px;
   padding: 16px;
-  max-height: 400px;
+  max-height: var(--panel-max-height);
   overflow: auto;
 }
 

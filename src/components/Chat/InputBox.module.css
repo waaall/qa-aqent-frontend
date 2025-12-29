@@ -15,7 +15,6 @@
 }
 
 .inputWrapper {
-  max-width: 900px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -103,7 +102,6 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  max-width: 900px;
   margin: 8px auto 0;
   padding: 10px 16px;
   /* 玻璃态提示框 */
@@ -131,7 +129,6 @@
 }
 
 .hint {
-  max-width: 900px;
   margin: 8px auto 0;
   font-size: 12px;
   color: var(--text-tertiary);
@@ -140,6 +137,7 @@
 }
 
 /* 横屏优化：极端横屏时缩小 padding */
+/* 注意：500px 为特定优化值，不纳入 config */
 @media (orientation: landscape) and (max-height: 500px) {
   .container {
     padding: 8px 16px;

@@ -1,3 +1,13 @@
+.modal :global(.ant-modal) {
+  max-width: var(--modal-width-medium);
+}
+
+@media (max-width: 768px) {
+  .modal :global(.ant-modal) {
+    max-width: 95vw;
+  }
+}
+
 .modal :global(.ant-modal-header) {
   background: linear-gradient(135deg, rgba(24, 144, 255, 0.08), rgba(24, 144, 255, 0.03));
   border-bottom: 2px solid rgba(24, 144, 255, 0.15);

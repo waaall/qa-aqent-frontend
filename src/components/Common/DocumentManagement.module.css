@@ -1,7 +1,7 @@
 .container {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 12px;
   height: 100%;
   position: relative;
 }
@@ -37,7 +37,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 20px;
+  padding: 12px 16px;
   border-radius: 8px;
   border: 1px solid rgba(24, 144, 255, 0.1);
   position: relative;
@@ -60,7 +60,11 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 4px;
+  gap: 2px;
+}
+
+.actionButtons {
+  gap: 8px !important;  /* 按钮间距保持适中 */
 }
 
 .title {
@@ -258,54 +262,58 @@
 
 /* 浅色主题 */
 [data-theme="light"] .updateBtn {
-  background: linear-gradient(135deg, #52c41a, #389e0d);
-  color: white;
-  box-shadow: 0 2px 8px rgba(82, 196, 26, 0.2);
+  background: linear-gradient(135deg, #d9d9d9, #bfbfbf);
+  color: rgba(0, 0, 0, 0.85);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 [data-theme="light"] .updateBtn:hover {
-  background: linear-gradient(135deg, #73d13d, #52c41a);
-  box-shadow: 0 4px 12px rgba(82, 196, 26, 0.3);
+  background: linear-gradient(135deg, #e8e8e8, #d9d9d9);
+  color: rgba(0, 0, 0, 0.85);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* 深色主题 */
 [data-theme="dark"] .updateBtn {
-  background: linear-gradient(135deg, #95de64, #73d13d);
-  color: rgba(0, 0, 0, 0.85);
-  box-shadow: 0 2px 8px rgba(149, 222, 100, 0.3);
+  background: linear-gradient(135deg, #595959, #434343);
+  color: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 [data-theme="dark"] .updateBtn:hover {
-  background: linear-gradient(135deg, #b7eb8f, #95de64);
-  box-shadow: 0 4px 12px rgba(149, 222, 100, 0.4);
+  background: linear-gradient(135deg, #737373, #595959);
+  color: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 /* 通用表格列最小宽度设置 */
 .tableWrapper :global(.ant-table-cell) {
-  min-width: 80px;
+  min-width: var(--table-min-col-desktop);
 }
 
 /* 响应式：窄屏时按钮纵向排布 */
 /* 断点值对应 config.ui.breakpoints.mobile (768px) */
 @media (max-width: 768px) {
   .toolbar {
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: flex-start; /* 移除 space-between，紧凑排列 */
+    /* 保持横向布局，左侧标题，右侧按钮 */
+    align-items: flex-start;
     gap: 12px;
   }
 
   .actionButtons {
+    /* 按钮组改为纵向排列 */
     flex-direction: column;
-    width: 100%;
+    gap: 6px !important;
   }
 
   .actionButtons > button {
-    width: 100%;
+    /* 按钮不要占满宽度，保持紧凑 */
+    width: auto;
+    white-space: nowrap;
   }
 
   /* 窄屏时进一步缩小最小列宽 */
   .tableWrapper :global(.ant-table-cell) {
-    min-width: 60px;
+    min-width: var(--table-min-col-mobile);
   }
 }

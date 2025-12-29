@@ -2,6 +2,16 @@
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
+.modal :global(.ant-modal) {
+  max-width: var(--modal-width-narrow);
+}
+
+@media (max-width: 768px) {
+  .modal :global(.ant-modal) {
+    max-width: 95vw;
+  }
+}
+
 .labelSection {
   display: flex;
   flex-direction: column;

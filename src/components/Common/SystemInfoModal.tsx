@@ -91,7 +91,7 @@ export const SystemInfoModal: React.FC<SystemInfoModalProps> = ({ open, onClose 
           关闭
         </Button>
       }
-      width={720}
+      width="95vw"
       className={styles.modal}
     >
       <div className={styles.container}>

@@ -63,7 +63,8 @@ export const DocumentManagement: React.FC = () => {
       }
       // 上传任务的恢复由 UploadDocumentModal 组件处理
     });
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // 仅在组件挂载时执行一次，用于初始化和恢复任务
 
   // 更新任务状态（通用）
   const updateTaskStatus = (taskId: string, updates: Partial<UnifiedTaskInfo>) => {
@@ -360,7 +361,7 @@ export const DocumentManagement: React.FC = () => {
             onClick={fetchDocuments}
             loading={loading}
           >
-            刷新
+            显示刷新
           </Button>
           <Button
             icon={<SyncOutlined spin={updating} />}
@@ -368,7 +369,7 @@ export const DocumentManagement: React.FC = () => {
             loading={updating}
             className={styles.updateBtn}
           >
-            更新向量库
+            更新向量
           </Button>
           <Button
             type="primary"
@@ -395,6 +396,9 @@ export const DocumentManagement: React.FC = () => {
           dataSource={documents}
           rowKey={(record) => `${record.storage}-${record.relative_path}`}
           loading={loading}
+          scroll={{
+            x: config.ui.table.minTotalWidth,  // 800px 最小宽度，启用水平滚动
+          }}
           pagination={{
             pageSize: 10,
             showSizeChanger: true,

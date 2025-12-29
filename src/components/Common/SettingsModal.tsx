@@ -127,7 +127,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
       open={open}
       onCancel={onClose}
       footer={null}
-      width={960}
+      width="95vw"
       className={styles.modal}
       styles={{
         body: { padding: 0 },

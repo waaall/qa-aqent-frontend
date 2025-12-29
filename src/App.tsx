@@ -7,6 +7,7 @@ import { ConfigProvider } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AppLayout } from '@/components/Layout';
+import config from '@/config';
 import { useThemeStore } from '@/stores/themeStore';
 import { lightTheme, darkTheme, lightCSSVars, darkCSSVars } from '@/theme';
 import './App.css';
@@ -21,6 +22,17 @@ const queryClient = new QueryClient({
   },
 });
 
+const layoutCSSVars = {
+  '--modal-width-narrow': `${config.ui.containerMaxWidth.narrow}px`,
+  '--modal-width-medium': `${config.ui.containerMaxWidth.medium}px`,
+  '--modal-width-wide': `${config.ui.containerMaxWidth.wide}px`,
+  '--panel-max-height': `${config.ui.scrollMaxHeight.panel}px`,
+  '--header-height-normal': `${config.ui.headerHeight.normal}px`,
+  '--header-height-landscape': `${config.ui.headerHeight.landscape}px`,
+  '--table-min-col-desktop': `${config.ui.table.minColumnWidth.desktop}px`,
+  '--table-min-col-mobile': `${config.ui.table.minColumnWidth.mobile}px`,
+};
+
 const App: React.FC = () => {
   const { currentTheme, loadThemePreference, isTransitioning } = useThemeStore();
 
@@ -34,7 +46,7 @@ const App: React.FC = () => {
     const root = document.documentElement;
     const cssVars = currentTheme === 'light' ? lightCSSVars : darkCSSVars;
 
-    Object.entries(cssVars).forEach(([key, value]) => {
+    Object.entries({ ...cssVars, ...layoutCSSVars }).forEach(([key, value]) => {
       root.style.setProperty(key, value);
     });
 

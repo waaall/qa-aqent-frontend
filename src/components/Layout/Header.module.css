@@ -1,5 +1,5 @@
 .container {
-  height: 64px;
+  height: var(--header-height-normal);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -62,9 +62,10 @@
 }
 
 /* 横屏优化：极端横屏时缩小 header 高度 */
+/* 注意：500px 为特定优化值，不纳入 config */
 @media (orientation: landscape) and (max-height: 500px) {
   .container {
-    height: 48px;
+    height: var(--header-height-landscape);
     padding: 0 16px;
   }
 

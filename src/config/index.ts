@@ -57,6 +57,30 @@ export const config = {
       desktop: 992,     // 桌面端阈值：>= 992px
       // 768-992px 为中间态（平板）
     },
+    // 容器最大宽度配置
+    containerMaxWidth: {
+      message: 900,      // 消息容器最大宽度
+      narrow: 560,       // 窄容器（小型 Modal）
+      medium: 720,       // 中等容器（中型 Modal）
+      wide: 960,         // 宽容器（大型 Modal）
+    },
+    // 滚动容器最大高度
+    scrollMaxHeight: {
+      panel: 400,        // 面板组件（TaskQueuePanel、DatabaseQuery）
+    },
+    // Header 高度配置
+    headerHeight: {
+      normal: 64,        // 正常模式
+      landscape: 48,     // 横屏模式
+    },
+    // 表格配置
+    table: {
+      minColumnWidth: {
+        desktop: 80,     // 桌面端最小列宽
+        mobile: 60,      // 移动端最小列宽
+      },
+      minTotalWidth: 800,  // 表格最小总宽度（用于 scroll.x）
+    },
   },
 
   // 应用信息配置

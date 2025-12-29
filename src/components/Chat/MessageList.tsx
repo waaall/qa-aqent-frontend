@@ -6,6 +6,7 @@ import React from 'react';
 import { Empty } from 'antd';
 import { MessageItem } from './MessageItem';
 import { useAutoScroll } from '@/hooks';
+import config from '@/config';
 import { Message } from '@/types';
 import styles from './MessageList.module.css';
 
@@ -29,7 +30,10 @@ export const MessageList: React.FC<MessageListProps> = ({ messages }) => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.messageList}>
+      <div
+        className={styles.messageList}
+        style={{ maxWidth: config.ui.containerMaxWidth.message }}
+      >
         {messages.map((message) => (
           <MessageItem key={message.id} message={message} />
         ))}
