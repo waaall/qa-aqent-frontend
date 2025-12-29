@@ -51,6 +51,12 @@ export const config = {
     sidebarWidth: 280,
     maxMessageLength: 10000,
     storageKey: 'qa_agent_ui_preferences', // UI 偏好存储键
+    // 响应式断点配置（单位：px）
+    breakpoints: {
+      mobile: 768,      // 移动端阈值：< 768px
+      desktop: 992,     // 桌面端阈值：>= 992px
+      // 768-992px 为中间态（平板）
+    },
   },
 
   // 应用信息配置

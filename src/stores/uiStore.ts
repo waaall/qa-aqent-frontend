@@ -25,7 +25,8 @@ const loadSidebarStateFromStorage = (): boolean => {
   } catch (e) {
     console.warn('Failed to load UI preferences', e);
   }
-  return false; // 默认展开
+  // 默认值：移动端收起，桌面端展开
+  return window.innerWidth < config.ui.breakpoints.mobile;
 };
 
 // 保存 UI 偏好到 localStorage

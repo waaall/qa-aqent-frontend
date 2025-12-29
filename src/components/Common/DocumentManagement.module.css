@@ -58,8 +58,9 @@
 
 .toolbarLeft {
   display: flex;
-  align-items: baseline;
-  gap: 12px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
 }
 
 .title {
@@ -193,12 +194,6 @@
 .filename {
   font-weight: 500;
   color: var(--text-primary);
-  max-width: 280px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  display: inline-block;
-  vertical-align: middle;
 }
 
 .tag {
@@ -283,4 +278,34 @@
 [data-theme="dark"] .updateBtn:hover {
   background: linear-gradient(135deg, #b7eb8f, #95de64);
   box-shadow: 0 4px 12px rgba(149, 222, 100, 0.4);
+}
+
+/* 通用表格列最小宽度设置 */
+.tableWrapper :global(.ant-table-cell) {
+  min-width: 80px;
+}
+
+/* 响应式：窄屏时按钮纵向排布 */
+/* 断点值对应 config.ui.breakpoints.mobile (768px) */
+@media (max-width: 768px) {
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start; /* 移除 space-between，紧凑排列 */
+    gap: 12px;
+  }
+
+  .actionButtons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .actionButtons > button {
+    width: 100%;
+  }
+
+  /* 窄屏时进一步缩小最小列宽 */
+  .tableWrapper :global(.ant-table-cell) {
+    min-width: 60px;
+  }
 }

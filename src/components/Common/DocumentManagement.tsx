@@ -268,12 +268,15 @@ export const DocumentManagement: React.FC = () => {
       dataIndex: 'filename',
       key: 'filename',
       width: '30%',
+      ellipsis: true, // 自动截断溢出文本
       render: (text: string, record: Document) => (
         <Space size={8}>
           {getFileIcon(record.file_type)}
-          <Text className={styles.filename} title={text}>
-            {text}
-          </Text>
+          <Tooltip title={text}>
+            <Text className={styles.filename}>
+              {text}
+            </Text>
+          </Tooltip>
         </Space>
       ),
     },
@@ -351,7 +354,7 @@ export const DocumentManagement: React.FC = () => {
             {documents.length} 个文档
           </Text>
         </div>
-        <Space>
+        <Space className={styles.actionButtons}>
           <Button
             icon={<ReloadOutlined />}
             onClick={fetchDocuments}

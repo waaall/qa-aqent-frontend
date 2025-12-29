@@ -47,6 +47,7 @@
 }
 
 /* 移动端：侧边栏浮动布局 */
+/* 断点值对应 config.ui.breakpoints.mobile (768px) */
 @media (max-width: 768px) {
   .sider {
     position: fixed !important;

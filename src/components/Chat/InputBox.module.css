@@ -4,6 +4,8 @@
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   padding: 16px 24px;
+  /* 添加底部安全区域，避开浏览器工具栏 */
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
   transition: all 300ms ease;
 }
 
