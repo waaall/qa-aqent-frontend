@@ -1,14 +1,24 @@
 .layout {
+  /* 使用 flex 布局实现自适应高度分配 */
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
+  min-height: 100svh;  /* 现代浏览器：使用小视口高度 */
   height: 100vh;
+  height: 100svh;
   overflow: hidden;
 }
 
 .body {
-  height: calc(100vh - 64px);
+  /* 使用 flex: 1 自动占满剩余空间，替代 calc 硬编码计算 */
+  flex: 1;
+  min-height: 0;  /* 关键：允许 flex item 缩小，避免溢出 */
+  overflow: hidden;
+  display: flex;  /* 嵌套 flex 布局用于左右分栏 */
 }
 
 .sider {
+  flex-shrink: 0;  /* 防止侧边栏被压缩 */
   background: var(--sidebar-bg);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
@@ -17,6 +27,8 @@
 }
 
 .content {
+  flex: 1;  /* 自动占满剩余宽度 */
+  min-width: 0;  /* 允许在窄屏时缩小 */
   background: var(--bg-glass-strong);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
