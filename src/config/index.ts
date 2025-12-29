@@ -50,6 +50,15 @@ export const config = {
   ui: {
     sidebarWidth: 280,
     maxMessageLength: 10000,
+    storageKey: 'qa_agent_ui_preferences', // UI 偏好存储键
+  },
+
+  // 应用信息配置
+  app: {
+    version: import.meta.env.VITE_APP_VERSION || 'v1.0.0',
+    description: import.meta.env.VITE_APP_DESCRIPTION || '基于智能问答技术的电厂运维辅助系统',
+    author: import.meta.env.VITE_APP_AUTHOR || '',
+    repository: import.meta.env.VITE_APP_REPOSITORY || '',
   },
 
   // 主题配置

@@ -11,6 +11,9 @@
   border-bottom: 1px solid var(--glass-border);
   box-shadow: var(--shadow-sm);
   transition: all 300ms ease;
+  /* 确保 Header 在遮罩之上 */
+  position: relative;
+  z-index: 99;
 }
 
 .logo {
@@ -44,4 +47,16 @@
 .actions button:hover {
   transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
+}
+
+/* 侧边栏开关按钮 */
+.sidebarToggle {
+  font-size: 18px !important;
+  color: var(--text-secondary);
+  transition: color 200ms ease;
+  margin-right: 12px;
+}
+
+.sidebarToggle:hover {
+  color: var(--text-primary) !important;
 }

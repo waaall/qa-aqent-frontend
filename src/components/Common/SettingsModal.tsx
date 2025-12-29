@@ -88,11 +88,28 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
             <div className={styles.aboutContent}>
               <Text className={styles.appTitle}>{config.appTitle}</Text>
               <Text type="secondary" className={styles.version}>
-                版本 v1.0.0
+                版本 {config.app.version}
               </Text>
               <Text type="secondary" className={styles.description}>
-                基于智能问答技术的电厂运维辅助系统
+                {config.app.description}
               </Text>
+              {/* 可选：显示作者 */}
+              {config.app.author && (
+                <Text type="secondary" style={{ marginTop: 8, display: 'block' }}>
+                  作者：{config.app.author}
+                </Text>
+              )}
+              {/* 可选：显示仓库链接 */}
+              {config.app.repository && (
+                <a
+                  href={config.app.repository}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ marginTop: 8, display: 'block', color: 'var(--primary-color)' }}
+                >
+                  GitHub 仓库
+                </a>
+              )}
             </div>
           </div>
         </div>
