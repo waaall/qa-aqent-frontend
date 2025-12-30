@@ -31,6 +31,7 @@ code {
   /* 使用 svh 视口单位代替 vh，避免移动端浏览器工具栏遮挡问题 */
   height: 100vh;    /* 旧浏览器 fallback */
   height: 100svh;   /* 现代浏览器：小视口高度，确保内容不被裁切 */
+  height: 100dvh;   /* 动态视口高度：适配键盘弹出/收起 */
   overflow: hidden;
   background: var(--bg-gradient);
 }

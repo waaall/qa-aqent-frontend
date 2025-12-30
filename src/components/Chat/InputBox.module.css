@@ -10,8 +10,12 @@
   /* 让输入区在高度被压缩时仍然可见：不参与收缩 + 贴底 */
   flex: 0 0 auto;
   flex-shrink: 0;
+  /* 关键：让输入区在可滚动容器底部“贴住”，低高度时不被挤出视口 */
   position: sticky;
   bottom: 0;
+  z-index: 20;
+  /* 降低移动端聚焦输入时触发整页滚动的概率（需要配合外层把滚动限制在消息区） */
+  overscroll-behavior: contain;
 }
 
 .inputWrapper {

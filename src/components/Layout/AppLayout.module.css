@@ -4,8 +4,10 @@
   flex-direction: column;
   min-height: 100vh;
   min-height: 100svh;  /* 现代浏览器：使用小视口高度 */
+  min-height: 100dvh;  /* 动态视口高度：适配键盘弹出/收起 */
   height: 100vh;
   height: 100svh;
+  height: 100dvh;
   overflow: hidden;
 }
 
