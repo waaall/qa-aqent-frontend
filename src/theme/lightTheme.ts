@@ -97,6 +97,7 @@ export const lightTheme: ThemeConfig = {
 // CSS 变量映射
 export const lightCSSVars = {
   // 背景渐变
+  '--bg-solid': '#f8f9fc',
   '--bg-gradient': 'linear-gradient(135deg, #f0f4ff 0%, #f8f0ff 50%, #fff5f7 100%)',
   '--bg-glass': 'rgba(255, 255, 255, 0.7)',
   '--bg-glass-strong': 'rgba(255, 255, 255, 0.9)',

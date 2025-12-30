@@ -33,8 +33,46 @@ const layoutCSSVars = {
   '--table-min-col-mobile': `${config.ui.table.minColumnWidth.mobile}px`,
 };
 
+const themeMetaColors: Record<'light' | 'dark', string> = {
+  light: lightTheme.token?.colorBgLayout ?? '#f8f9fc',
+  dark: darkTheme.token?.colorBgLayout ?? '#1a1d2e',
+};
+
+const syncThemeColorMeta = (theme: 'light' | 'dark', mode: 'light' | 'dark' | 'auto') => {
+  const color = themeMetaColors[theme];
+  const metaTags = document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]');
+
+  if (metaTags.length === 0) {
+    const meta = document.createElement('meta');
+    meta.name = 'theme-color';
+    meta.content = color;
+    document.head.appendChild(meta);
+    return;
+  }
+
+  metaTags.forEach((meta) => {
+    const media = meta.getAttribute('media');
+
+    if (!media) {
+      meta.setAttribute('content', color);
+      return;
+    }
+
+    if (mode === 'auto') {
+      if (media.includes('prefers-color-scheme: dark')) {
+        meta.setAttribute('content', themeMetaColors.dark);
+      } else if (media.includes('prefers-color-scheme: light')) {
+        meta.setAttribute('content', themeMetaColors.light);
+      }
+      return;
+    }
+
+    meta.setAttribute('content', color);
+  });
+};
+
 const App: React.FC = () => {
-  const { currentTheme, loadThemePreference, isTransitioning } = useThemeStore();
+  const { currentTheme, loadThemePreference, isTransitioning, mode } = useThemeStore();
 
   // 加载主题偏好
   useEffect(() => {
@@ -52,7 +90,8 @@ const App: React.FC = () => {
 
     // 设置 data-theme 属性用于 CSS 选择器
     root.setAttribute('data-theme', currentTheme);
-  }, [currentTheme]);
+    syncThemeColorMeta(currentTheme, mode);
+  }, [currentTheme, mode]);
 
   // 选择 Ant Design 主题
   const antdThemeConfig = currentTheme === 'light' ? lightTheme : darkTheme;

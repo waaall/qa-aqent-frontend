@@ -129,6 +129,7 @@ export const darkTheme: ThemeConfig = {
 // CSS 变量映射
 export const darkCSSVars = {
   // 背景渐变（深蓝灰色调）
+  '--bg-solid': '#1a1d2e',
   '--bg-gradient': 'linear-gradient(135deg, #1a1d2e 0%, #1e2238 50%, #1a1e32 100%)',
   '--bg-glass': 'rgba(30, 34, 51, 0.6)',
   '--bg-glass-strong': 'rgba(38, 43, 64, 0.8)',

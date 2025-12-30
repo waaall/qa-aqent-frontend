@@ -1,5 +1,5 @@
 /**
- * 数据源标签组件
+ * 数据库源标签组件
  */
 
 import React from 'react';

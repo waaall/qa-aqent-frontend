@@ -9,8 +9,8 @@ import logger from '@/utils/logger';
 export const databaseApi = {
   /**
    * 获取数据库信息
-   * @param dbName 数据库名称（可选）
-   * @param dbSource 数据源（可选：'clickhouse' | 其他）
+   * @param dbName 数据库名（可选）
+   * @param dbSource 数据库源（可选：'clickhouse' | 其他）
    */
   async getInfo(dbName?: string, dbSource?: string): Promise<DatabaseInfoResponse> {
     logger.debug('Fetching database info', { dbName, dbSource });

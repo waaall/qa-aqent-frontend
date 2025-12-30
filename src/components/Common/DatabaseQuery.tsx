@@ -71,7 +71,7 @@ export const DatabaseQuery: React.FC = () => {
         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
           {/* 查询表单 */}
           <Form layout="inline" className={styles.form}>
-            <Form.Item label="数据库名称">
+            <Form.Item label="数据库名">
               <Input
                 placeholder="可选"
                 value={dbName}
@@ -79,7 +79,7 @@ export const DatabaseQuery: React.FC = () => {
                 style={{ width: 200 }}
               />
             </Form.Item>
-            <Form.Item label="数据源">
+            <Form.Item label="数据库源">
               <Select
                 placeholder="可选"
                 value={dbSource}

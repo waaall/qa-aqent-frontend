@@ -4,10 +4,30 @@
   box-sizing: border-box;
 }
 
+:root {
+  --bg-solid: #f8f9fc;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-solid: #1a1d2e;
+  }
+}
+
 html {
   width: 100%;
   height: 100%;
-  background: var(--bg-gradient);
+  background-color: var(--bg-solid);
+  background-image: var(--bg-gradient);
+  color-scheme: light dark;
+}
+
+html[data-theme='light'] {
+  color-scheme: light;
+}
+
+html[data-theme='dark'] {
+  color-scheme: dark;
 }
 
 body {
@@ -18,7 +38,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: var(--bg-gradient);
+  background-color: var(--bg-solid);
+  background-image: var(--bg-gradient);
 }
 
 code {
@@ -33,7 +54,8 @@ code {
   height: 100svh;   /* 现代浏览器：小视口高度，确保内容不被裁切 */
   height: 100dvh;   /* 动态视口高度：适配键盘弹出/收起 */
   overflow: hidden;
-  background: var(--bg-gradient);
+  background-color: var(--bg-solid);
+  background-image: var(--bg-gradient);
 }
 
 /* 主题切换动画 */
@@ -171,7 +193,7 @@ code {
     color: var(--text-tertiary) !important;
   }
 
-  /* Tag 组件（数据源标签）*/
+  /* Tag 组件（数据库源标签）*/
   .ant-tag {
     background: var(--code-inline-bg) !important;
     border-color: var(--border-light) !important;

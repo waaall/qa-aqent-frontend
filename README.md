@@ -22,7 +22,7 @@
 - 会话管理（创建、切换、删除）
 - 多轮对话支持
 - Markdown 消息渲染（支持代码高亮、表格等）
-- 数据源标签显示（知识库、SQL、API、对话）
+- 数据库源标签显示（知识库、SQL、API、对话）
 - 实时加载状态和错误处理
 - 自动滚动到最新消息
 - 响应式布局（支持移动端）
@@ -114,7 +114,7 @@ frontend/
 │   │   │   └── Header.tsx             # 顶部栏
 │   │   └── Common/         # 通用组件
 │   │       ├── MarkdownRenderer.tsx   # Markdown 渲染
-│   │       ├── SourceTag.tsx          # 数据源标签
+│   │       ├── SourceTag.tsx          # 数据库源标签
 │   │       ├── LoadingDots.tsx        # 加载动画
 │   │       ├── ThemeToggle.tsx        # 主题切换器
 │   │       ├── SettingsModal.tsx      # 设置弹窗
@@ -240,7 +240,7 @@ VITE_THINKING_PREVIEW_MAX_LENGTH=500
 - XSS 防护（使用 rehype-sanitize）
 - 仅允许安全的 URL 协议（http/https/mailto）
 
-### 4. 数据源显示
+### 4. 数据库源显示
 
 每条助手回答会显示数据来源标签：
 - 📚 知识库 - RAG 引擎检索的文档
@@ -281,7 +281,7 @@ VITE_THINKING_PREVIEW_MAX_LENGTH=500
 ### 7. 数据库查询工具
 
 在设置弹窗的"数据库"标签页中，可以：
-- **查询数据库信息**：输入数据库名称和数据源进行查询
+- **查询数据库信息**：输入数据库名称和数据库源进行查询
 - **查看元信息**：以 JSON 格式展示数据库结构和元数据
 - **实时查询**：点击查询按钮即时获取最新信息
 - **主题适配**：查询结果展示适配浅色/深色主题，确保可读性
@@ -390,7 +390,7 @@ GET /api/stats                       # 系统统计信息
 GET /api/database/info?db_name={name}&db_source={source}  # 查询数据库信息
   - 参数：
     - db_name: 数据库名称（可选）
-    - db_source: 数据源标识（可选）
+    - db_source: 数据库源标识（可选）
   - 返回：数据库元信息（表结构、统计信息等）
 ```
 
