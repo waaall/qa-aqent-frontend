@@ -4,8 +4,8 @@
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   padding: 16px 24px;
-  /* 底部安全区域：取 16px 和安全区域的最大值，避免过度 padding */
-  padding-bottom: max(16px, env(safe-area-inset-bottom));
+  /* 底部安全区域：取 8px 和安全区域的最大值，避免过度 padding */
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
   transition: all 300ms ease;
   /* 让输入区在高度被压缩时仍然可见：不参与收缩 + 贴底 */
   flex: 0 0 auto;
