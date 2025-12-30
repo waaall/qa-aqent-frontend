@@ -12,7 +12,6 @@ import {
   Typography,
   Input,
   Select,
-  Form,
 } from 'antd';
 import {
   ReloadOutlined,
@@ -70,38 +69,48 @@ export const DatabaseQuery: React.FC = () => {
       >
         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
           {/* 查询表单 */}
-          <Form layout="inline" className={styles.form}>
-            <Form.Item label="数据库名">
-              <Input
-                placeholder="可选"
-                value={dbName}
-                onChange={(e) => setDbName(e.target.value)}
-                style={{ width: 200 }}
-              />
-            </Form.Item>
-            <Form.Item label="数据库源">
-              <Select
-                placeholder="可选"
-                value={dbSource}
-                onChange={setDbSource}
-                style={{ width: 150 }}
-                allowClear
-              >
-                <Select.Option value="clickhouse">ClickHouse</Select.Option>
-                <Select.Option value="mysql">MySQL</Select.Option>
-              </Select>
-            </Form.Item>
-            <Form.Item>
-              <Button
-                type="primary"
-                icon={<ReloadOutlined />}
-                onClick={fetchDbInfo}
-                loading={loading}
-              >
-                查询
-              </Button>
-            </Form.Item>
-          </Form>
+          <div className={styles.queryForm}>
+            <div className={styles.inputGroup}>
+              <div className={styles.formItem}>
+                <label htmlFor="db-name-input" id="db-name-label" className={styles.label}>
+                  数据库名
+                </label>
+                <Input
+                  id="db-name-input"
+                  aria-labelledby="db-name-label"
+                  placeholder="可选"
+                  value={dbName}
+                  onChange={(e) => setDbName(e.target.value)}
+                  className={styles.input}
+                />
+              </div>
+              <div className={styles.formItem}>
+                <label id="db-source-label" className={styles.label}>
+                  数据库源
+                </label>
+                <Select
+                  aria-labelledby="db-source-label"
+                  placeholder="可选"
+                  value={dbSource}
+                  onChange={setDbSource}
+                  className={styles.select}
+                  allowClear
+                >
+                  <Select.Option value="clickhouse">ClickHouse</Select.Option>
+                  <Select.Option value="mysql">MySQL</Select.Option>
+                </Select>
+              </div>
+            </div>
+            <Button
+              type="primary"
+              icon={<ReloadOutlined />}
+              onClick={fetchDbInfo}
+              loading={loading}
+              className={styles.queryButton}
+            >
+              查询
+            </Button>
+          </div>
 
           {/* 数据库信息展示 */}
           {loading ? (

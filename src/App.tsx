@@ -31,6 +31,9 @@ const layoutCSSVars = {
   '--header-height-landscape': `${config.ui.headerHeight.landscape}px`,
   '--table-min-col-desktop': `${config.ui.table.minColumnWidth.desktop}px`,
   '--table-min-col-mobile': `${config.ui.table.minColumnWidth.mobile}px`,
+  '--query-input-height': `${config.ui.queryForm.inputHeight}px`,
+  '--query-input-min-width': `${config.ui.queryForm.inputMinWidth}px`,
+  '--query-input-max-width': `${config.ui.queryForm.inputMaxWidth}px`,
 };
 
 const themeMetaColors: Record<'light' | 'dark', string> = {

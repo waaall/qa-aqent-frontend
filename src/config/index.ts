@@ -81,6 +81,12 @@ export const config = {
       },
       minTotalWidth: 800,  // 表格最小总宽度（用于 scroll.x）
     },
+    // 查询表单配置
+    queryForm: {
+      inputHeight: 32,       // 输入框统一高度（对应 Ant Design middle size）
+      inputMinWidth: 160,    // 输入框最小宽度（防止过窄）
+      inputMaxWidth: 240,    // 输入框最大宽度（防止过宽）
+    },
   },
 
   // 应用信息配置

@@ -129,31 +129,121 @@
   min-height: 200px;
 }
 
-.form {
+/* ========== 查询表单样式 ========== */
+
+/* 查询表单容器 - 桌面端横向布局 */
+.queryForm {
+  display: flex;
+  flex-direction: row;       /* 桌面端：全部横向 */
+  align-items: flex-end;     /* 底部对齐 */
+  gap: 16px;
   padding: 16px;
   border-radius: 6px;
 }
 
 /* 浅色主题表单 */
-[data-theme="light"] .form {
+[data-theme="light"] .queryForm {
   background: linear-gradient(135deg, rgba(24, 144, 255, 0.03), rgba(24, 144, 255, 0.01));
   border: 1px solid rgba(24, 144, 255, 0.1);
 }
 
 /* 深色主题表单 */
-[data-theme="dark"] .form {
+[data-theme="dark"] .queryForm {
   background: linear-gradient(135deg, rgba(123, 158, 245, 0.08), rgba(123, 158, 245, 0.03));
   border: 1px solid rgba(123, 158, 245, 0.2);
 }
 
-.form :global(.ant-form-item) {
-  margin-bottom: 0;
+/* 输入组容器 - 桌面端横向排列输入框 */
+.inputGroup {
+  display: flex;
+  flex-direction: row;       /* 桌面端：输入框横向 */
+  gap: 16px;
+  flex: 1;
+  min-width: 0;
 }
 
-.form :global(.ant-form-item-label > label) {
+/* 表单项容器 */
+.formItem {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1 1 0;
+  min-width: var(--query-input-min-width);
+  max-width: var(--query-input-max-width);
+}
+
+/* 标签样式 */
+.label {
   font-weight: 500;
   font-size: 13px;
   letter-spacing: 0.3px;
+  margin: 0;
+}
+
+/* 浅色主题标签 */
+[data-theme="light"] .label {
+  color: rgba(0, 0, 0, 0.85);
+}
+
+/* 深色主题标签 */
+[data-theme="dark"] .label {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* 输入框和下拉框：统一高度 */
+.input,
+.select {
+  width: 100%;
+  min-width: 0;
+  height: var(--query-input-height);       /* 统一高度 */
+  box-sizing: border-box;
+}
+
+/* 确保 Select 选择器高度与 Input 一致 */
+.select :global(.ant-select-selector) {
+  height: var(--query-input-height) !important;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+/* 查询按钮样式 */
+.queryButton {
+  flex-shrink: 0;            /* 按钮不缩小 */
+  white-space: nowrap;
+}
+
+/* ========== 响应式：移动端 ========== */
+/* 断点值来源：config.ui.breakpoints.mobile (768px) */
+@media (max-width: 768px) {
+  .queryForm {
+    flex-direction: row;     /* 保持横向：输入组 + 按钮 */
+    align-items: flex-start; /* 顶部对齐 */
+    gap: 12px;
+  }
+
+  .inputGroup {
+    flex-direction: column;  /* 移动端：输入框纵向 */
+    gap: 12px;
+    flex: 1;                 /* 占据剩余空间 */
+  }
+
+  .formItem {
+    width: 100%;             /* 表单项占满宽度 */
+    min-width: 0;
+    max-width: none;
+  }
+
+  .input,
+  .select {
+    width: 100%;             /* 移动端宽度100% */
+    min-width: 0;
+    max-width: none;         /* 移除最大宽度限制 */
+  }
+
+  .queryButton {
+    align-self: flex-start;  /* 按钮顶部对齐，移除硬编码 margin-top */
+  }
 }
 
 .dbInfo {
