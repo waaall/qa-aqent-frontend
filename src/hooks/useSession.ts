@@ -42,13 +42,17 @@ export function useSession() {
         const response = await chatApi.getSessionHistory(sessionId);
 
         // 使用时间戳+索引生成唯一ID，避免重新加载时ID冲突
-        const messages: Message[] = response.history.map((item, index) => ({
-          id: `${sessionId}-${item.timestamp || Date.now()}-${index}`,
-          role: item.role as 'user' | 'assistant',
-          content: item.content,
-          timestamp: item.timestamp,
-          metadata: item.metadata as Message['metadata'],
-        }));
+        const fallbackTimestamp = Date.now();
+        const messages: Message[] = response.history.map((item, index) => {
+          const timestamp = item.timestamp ?? fallbackTimestamp;
+          return {
+            id: `${sessionId}-${timestamp}-${index}`,
+            role: item.role as 'user' | 'assistant',
+            content: item.content,
+            timestamp,
+            metadata: item.metadata as Message['metadata'],
+          };
+        });
 
         setMessages(messages);
 
