@@ -7,7 +7,7 @@ import {
   ChatRequest,
   ChatResponse,
   SessionHistoryResponse,
-  ContextInfoResponse,
+  ChatHistoryResponse,
   SuccessResponse,
 } from '@/types';
 import { ThinkingEvent } from '@/types/thinking';
@@ -16,113 +16,31 @@ import logger from '@/utils/logger';
 import { readSseStream } from '@/utils/sseParser';
 import { joinUrl } from '@/utils/urlHelper';
 
-const parseJsonString = (value: unknown): unknown => {
-  if (typeof value !== 'string') return value;
-  try {
-    return JSON.parse(value);
-  } catch {
-    return value;
-  }
-};
-
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
 
-const extractBlockText = (block: unknown): string => {
-  if (isRecord(block) && typeof block.text === 'string') return block.text;
-  return '';
-};
+const isDisplayableRole = (role: unknown): role is 'user' | 'assistant' =>
+  role === 'user' || role === 'assistant';
 
-const extractMessageContent = (item: unknown): string => {
-  if (!isRecord(item) || !Array.isArray(item.blocks)) return '';
-  return item.blocks
-    .map(extractBlockText)
-    .filter((text) => text.trim() !== '')
-    .join('\n');
-};
-
-const normalizeUserContent = (content: string): string => {
-  const marker = '[用户查询]';
-  const markerIndex = content.indexOf(marker);
-  if (markerIndex === -1) return content;
-  const afterMarker = content.slice(markerIndex + marker.length).trim();
-  return afterMarker || content;
-};
-
-const extractMessageRole = (item: unknown): 'user' | 'assistant' => {
-  if (isRecord(item) && item.role === 'user') return 'user';
-  if (isRecord(item) && item.role === 'assistant') return 'assistant';
-  return 'assistant';
-};
-
-const isDisplayableRole = (item: unknown): item is { role: 'user' | 'assistant' } =>
-  isRecord(item) && (item.role === 'user' || item.role === 'assistant');
-
-const extractMessageTimestamp = (item: unknown): number => {
-  if (isRecord(item) && isRecord(item.additional_kwargs)) {
-    const extra = item.additional_kwargs;
-    if (typeof extra.timestamp === 'number') return extra.timestamp;
+const toEpochMs = (value: unknown): number | null => {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value < 1e12 ? value * 1000 : value;
   }
-  return Date.now();
-};
-
-const extractMessageMetadata = (item: unknown): Record<string, unknown> | undefined => {
-  if (!isRecord(item)) return undefined;
-  if (isRecord(item.additional_kwargs)) return item.additional_kwargs;
-  return undefined;
-};
-
-const extractChatHistoryFromMemory = (memory: unknown): unknown[] | null => {
-  const parsed = parseJsonString(memory);
-  if (!isRecord(parsed) || !isRecord(parsed.value)) return null;
-
-  const value = parsed.value;
-  const chatStoreKey =
-    typeof value.chat_store_key === 'string' ? value.chat_store_key : 'chat_history';
-  if (isRecord(value.chat_store) && isRecord(value.chat_store.store)) {
-    const history = value.chat_store.store[chatStoreKey];
-    if (Array.isArray(history)) return history;
+  if (typeof value === 'string') {
+    const parsed = Date.parse(value);
+    if (!Number.isNaN(parsed)) return parsed;
   }
-
   return null;
 };
 
-const extractContextHistory = (ctx: unknown): unknown[] | null => {
-  if (
-    isRecord(ctx) &&
-    isRecord(ctx.state) &&
-    isRecord(ctx.state.state_data) &&
-    isRecord(ctx.state.state_data._data)
-  ) {
-    return extractChatHistoryFromMemory(ctx.state.state_data._data.memory);
-  }
-
-  return null;
+const extractMessageTimestamp = (metadata?: Record<string, unknown>): number => {
+  if (!metadata) return Date.now();
+  const candidate =
+    toEpochMs(metadata.timestamp) ??
+    toEpochMs(metadata.created_at) ??
+    toEpochMs(metadata.createdAt);
+  return candidate ?? Date.now();
 };
-
-const mapContextMessages = (
-  items: unknown[]
-): Array<{
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: number;
-  metadata?: Record<string, unknown>;
-}> =>
-  items
-    .filter(isDisplayableRole)
-    .map((item) => {
-      const role = extractMessageRole(item);
-      const content = role === 'user'
-        ? normalizeUserContent(extractMessageContent(item))
-        : extractMessageContent(item);
-      return {
-        role,
-        content,
-        timestamp: extractMessageTimestamp(item),
-        metadata: extractMessageMetadata(item),
-      };
-    })
-    .filter((message) => message.content.trim() !== '');
 
 export const chatApi = {
   /**
@@ -203,57 +121,49 @@ export const chatApi = {
   },
 
   /**
-   * 获取会话历史（已改为 Context 接口）
+   * 获取会话历史
    */
   async getSessionHistory(sessionId: string, limit?: number): Promise<SessionHistoryResponse> {
-    logger.debug('Fetching context info', { sessionId, limit });
-    // 调用新的 /context/{sessionId}/info 接口
-    const response = await apiClient.get<ContextInfoResponse>(
-      `${config.endpoints.contextInfo}/${sessionId}/info`,
+    logger.debug('Fetching chat history', { sessionId, limit });
+    const response = await apiClient.get<ChatHistoryResponse>(
+      `${config.endpoints.contextInfo}/${sessionId}/history`,
       {
         params: { limit },
       }
     );
 
-    let messages: Array<{
-      role: string;
-      content: string;
-      timestamp: number;
-      metadata?: Record<string, unknown>;
-    }> = [];
+    const fallbackTimestamp = Date.now();
+    const messages = response.history
+      .filter((item) => isDisplayableRole(item.role))
+      .map((item) => {
+        const metadata = isRecord(item.additional_kwargs) ? item.additional_kwargs : undefined;
+        const content = typeof item.content === 'string' ? item.content : String(item.content ?? '');
+        return {
+          role: item.role,
+          content,
+          timestamp: metadata ? extractMessageTimestamp(metadata) : fallbackTimestamp,
+          metadata,
+        };
+      })
+      .filter((message) => message.content.trim() !== '');
 
-    // 解析 ctx_json 字段获取历史消息
-    if (response.context.ctx_json) {
-      try {
-        const ctxJson = response.context.ctx_json as unknown;
-        const ctx = parseJsonString(ctxJson);
-        const history = extractContextHistory(ctx);
-
-        if (history) {
-          messages = mapContextMessages(history);
-        } else {
-          logger.warn('ctx_json does not contain recognizable message format', { ctx });
-        }
-      } catch (error) {
-        logger.error('Failed to parse ctx_json', error);
-      }
-    }
-
-    // 转换为 SessionHistoryResponse 格式以保持向后兼容
     return {
       success: response.success,
-      session_id: response.context.session_id,
+      session_id: response.session_id,
       history: messages,
-      count: messages.length,
+      count: typeof response.message_count === 'number' ? response.message_count : messages.length,
+      message_count: response.message_count,
     };
   },
 
   /**
-   * 删除会话（已改为 Context 接口）
+   * 清空会话历史
    */
   async deleteSession(sessionId: string): Promise<SuccessResponse> {
-    logger.info('Deleting session context', { sessionId });
-    return apiClient.delete<SuccessResponse>(`${config.endpoints.contextDelete}/${sessionId}`);
+    logger.info('Clearing chat history', { sessionId });
+    return apiClient.delete<SuccessResponse>(
+      `${config.endpoints.contextDelete}/${sessionId}/history`
+    );
   },
 
 };

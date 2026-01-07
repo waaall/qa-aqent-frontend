@@ -27,5 +27,5 @@ dist-ssr
 # Dependency directories
 node_modules/
 .env.development
-target/
 gen/
+target/
