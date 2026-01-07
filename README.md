@@ -178,6 +178,10 @@ VITE_API_BASE_URL=http://192.168.50.11:8006/api/
 # 对话接口路径（会与 base URL 拼接）
 VITE_CHAT_ENDPOINT=/api/chat
 
+# 会话历史接口
+VITE_CONTEXT_INFO_ENDPOINT=/api/chat
+VITE_CONTEXT_DELETE_ENDPOINT=/api/chat
+
 # 应用配置
 VITE_APP_TITLE=智能问答系统 [开发]
 
@@ -202,6 +206,10 @@ VITE_API_BASE_URL=/api
 
 # 对话接口路径（会与 base URL 拼接）
 VITE_CHAT_ENDPOINT=/api/chat
+
+# 会话历史接口
+VITE_CONTEXT_INFO_ENDPOINT=/api/chat
+VITE_CONTEXT_DELETE_ENDPOINT=/api/chat
 
 # 应用配置
 VITE_APP_TITLE=智能问答系统
@@ -307,26 +315,24 @@ POST /api/chat
 
 ```typescript
 POST /api/chat (reset=true)       # 创建会话（不传 session_id）
-GET /api/context/{session_id}/info    # 获取历史
-DELETE /api/context/{session_id}      # 删除会话
-POST /api/context/{session_id}/refresh # 刷新会话
+GET /api/chat/{session_id}/history    # 获取历史
+DELETE /api/chat/{session_id}/history # 清空历史
+GET /api/chat/{session_id}/info       # 获取会话元信息
 ```
 
-#### 历史对话解析（Context）
+#### 历史对话解析（History API）
 
-入口：`GET /api/context/{session_id}/info`（`VITE_CONTEXT_INFO_ENDPOINT`）。
+入口：`GET /api/chat/{session_id}/history`（`VITE_CONTEXT_INFO_ENDPOINT`）。
 
-解析流程：
-1. `context.ctx_json` 为 JSON 字符串，先反序列化为对象。
-2. 读取 `ctx.state.state_data._data.memory`（字符串），再次反序列化。
-3. 从 `value.chat_store.store[chat_store_key]` 取出历史数组（`chat_store_key` 缺省为 `chat_history`）。
+响应结构：
+1. `message_count` 表示消息数量。
+2. `history` 为消息数组，结构为 `{ role, content, additional_kwargs }`。
 
 消息结构与展示规则（见 `src/services/chatApi.ts`）：
-1. 消息结构：`{ role, additional_kwargs, blocks: [{ block_type: "text", text }] }`
-2. 仅展示 `role` 为 `user` / `assistant` 的消息，忽略 `tool`。
-3. `content` 取 `blocks[].text` 并用 `\n` 连接。
-4. 用户消息若包含 `[用户查询]`，仅展示该标记后的内容；否则原样展示。
-5. 时间戳取 `additional_kwargs.timestamp`（number），缺失则用当前时间兜底。
+1. 仅展示 `role` 为 `user` / `assistant` 的消息，忽略 `tool`。
+2. `content` 直接渲染为消息正文。
+3. 时间戳优先取 `additional_kwargs.timestamp` / `created_at` / `createdAt`，支持秒/毫秒格式，缺失则用当前时间兜底。
+4. `additional_kwargs` 会作为 metadata 透传到前端消息对象。
 
 ### 思考流（SSE）
 
