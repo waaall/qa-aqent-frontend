@@ -12,10 +12,12 @@ from pathlib import Path
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Query, BackgroundTasks
 from pydantic import BaseModel
 
-from src.utils.config import get_config_value
+from llama_index.core.llms import ChatMessage
+
+from src.utils.config import get_config_value, load_config
 from src.agent.react_agent import LlamaAgentsRoutingAgent
 from src.services.vector_store import VectorStoreService
-from src.services.context_service import ContextService
+from src.services.chat_store_service import ChatStoreService
 from src.utils.ingestion_handler import IngestionHandler
 
 
@@ -53,9 +55,9 @@ def get_react_agent() -> LlamaAgentsRoutingAgent:
     return react_agent
 
 
-def get_context_service() -> ContextService:
-    """获取 Context 服务实例"""
-    return ContextService.get_instance()
+def get_chat_store_service() -> ChatStoreService:
+    """获取 ChatStore 服务实例"""
+    return ChatStoreService.get_instance()
 
 
 def index_document_background(
@@ -493,7 +495,7 @@ async def chat_with_context_debug(request: ChatWithContextRequest):
 
     # 0. Phoenix Input：用户输入
     span.set_attribute(SpanAttributes.INPUT_VALUE, request.query)
-    logger.debug("phoenix处理用户输入")
+    logger.debug("===================== phoenix处理用户输入============================")
 
     try:
         return await chat_with_context(request)
@@ -514,7 +516,7 @@ async def chat_with_context_debug(request: ChatWithContextRequest):
 @router.post('/chat')
 async def chat_with_context(request: ChatWithContextRequest):
     """
-    支持多轮对话的聊天接口（使用 Context 机制）
+    支持多轮对话的聊天接口（使用 ChatStore 对话历史）
 
     请求体:
     - query: 用户问题
@@ -529,16 +531,21 @@ async def chat_with_context(request: ChatWithContextRequest):
     """
     try:
         agent = get_react_agent()
-        context_service = get_context_service()
+        chat_store_service = get_chat_store_service()
 
         # 1. 处理 reset 或创建新会话
         if request.reset:
             if request.session_id:
-                archived = context_service.archive_context(request.session_id)
+                archived = chat_store_service.archive_session(request.session_id, force=True)
                 if not archived:
-                    logger.warning(f"历史会话归档失败或不存在: {request.session_id}")
+                    logger.warning(
+                        "历史会话归档失败或不存在: %s",
+                        request.session_id,
+                    )
+                # 清除 ChatStore 历史
+                chat_store_service.clear_session(request.session_id)
             session_id = str(uuid.uuid4())
-            ctx = None  # 将创建新 Context
+            ctx = None  # 单轮 Context
             logger.info(f"创建新会话: {session_id}")
         else:
             if not request.session_id:
@@ -547,21 +554,26 @@ async def chat_with_context(request: ChatWithContextRequest):
                     detail='需要 session_id 或 reset=true 创建新会话'
                 )
             session_id = request.session_id
-            # 从存储中加载 Context
-            ctx = context_service.load_context(session_id, agent._get_workflow())
+            ctx = None
 
-            if ctx is None:
-                logger.warning(f"会话 {session_id} 不存在或已过期")
-                raise HTTPException(status_code=404, detail='Context 不存在或已过期')
+        # 2. 加载 ChatMemoryBuffer（用于对话历史，不包含当前问题）
+        config = load_config()
+        token_limit = config.get('chat_store', {}).get('token_limit', 3000)
+        chat_memory = chat_store_service.get_chat_memory(session_id, token_limit=token_limit)
 
-        # 2. 调用带 Context 的查询方法
-        result, updated_ctx = await agent.aquery_with_context(request.query, ctx)
+        # 3. 调用带 Context 和 ChatMemory 的查询方法（此时 ChatStore 中还没有当前问题）
+        result, _ = await agent.aquery_with_context(
+            request.query,
+            ctx,
+            chat_memory=chat_memory
+        )
 
-        # 3. 保存更新后的 Context
-        save_success = context_service.save_context(session_id, updated_ctx)
+        # 4. Agent 完成后，再添加用户消息和助手回答到 ChatStore
+        user_msg = ChatMessage(role="user", content=request.query)
+        chat_store_service.add_message(session_id, user_msg)
 
-        if not save_success:
-            logger.warning(f"Context 保存失败: {session_id}")
+        assistant_msg = ChatMessage(role="assistant", content=result.get('answer', ''))
+        chat_store_service.add_message(session_id, assistant_msg)
 
         return {
             'success': True,
@@ -575,6 +587,151 @@ async def chat_with_context(request: ChatWithContextRequest):
         raise
     except Exception as e:
         logger.error(f"Chat 接口错误: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ========== ChatStore 管理接口 ==========
+
+@router.get('/chat/{session_id}/history')
+async def get_chat_history(session_id: str, limit: int = Query(50, ge=1, le=100)):
+    """
+    获取会话对话历史
+
+    Args:
+        session_id: 会话ID
+        limit: 返回消息数量限制（默认50，最多100）
+
+    Returns:
+        对话历史列表
+    """
+    try:
+        chat_store_service = get_chat_store_service()
+        messages = chat_store_service.get_messages(session_id, limit=limit)
+
+        # 转换为可序列化的格式
+        history = [
+            {
+                'role': msg.role,
+                'content': msg.content,
+                'additional_kwargs': msg.additional_kwargs
+            }
+            for msg in messages
+        ]
+
+        return {
+            'success': True,
+            'session_id': session_id,
+            'message_count': len(history),
+            'history': history
+        }
+
+    except Exception as e:
+        logger.error(f"获取对话历史失败: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get('/chat/{session_id}/info')
+async def get_session_info(session_id: str):
+    """
+    获取会话元数据
+
+    Args:
+        session_id: 会话ID
+
+    Returns:
+        会话信息（创建时间、最后访问时间、消息数等）
+    """
+    try:
+        chat_store_service = get_chat_store_service()
+        info = chat_store_service.get_session_info(session_id)
+
+        if info is None:
+            raise HTTPException(status_code=404, detail='会话不存在')
+
+        return {
+            'success': True,
+            'info': info
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"获取会话信息失败: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.delete('/chat/{session_id}/history')
+async def clear_chat_history(session_id: str):
+    """
+    清除会话对话历史（保留 Context）
+
+    Args:
+        session_id: 会话ID
+
+    Returns:
+        操作结果
+    """
+    try:
+        chat_store_service = get_chat_store_service()
+        success = chat_store_service.clear_session(session_id)
+
+        if not success:
+            logger.warning(f"清除会话历史失败: {session_id}")
+
+        return {
+            'success': success,
+            'session_id': session_id,
+            'message': '对话历史已清除' if success else '清除失败'
+        }
+
+    except Exception as e:
+        logger.error(f"清除对话历史失败: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post('/chat/cleanup-expired')
+async def cleanup_expired_chat_sessions():
+    """
+    清理过期会话（管理员接口）
+
+    Returns:
+        清理的会话数量
+    """
+    try:
+        chat_store_service = get_chat_store_service()
+        cleaned_count = chat_store_service.cleanup_expired_sessions()
+
+        return {
+            'success': True,
+            'cleaned_count': cleaned_count,
+            'message': f'已清理 {cleaned_count} 个过期会话'
+        }
+
+    except Exception as e:
+        logger.error(f"清理过期会话失败: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get('/chat/sessions/list')
+async def list_all_sessions():
+    """
+    获取所有会话列表（管理员接口）
+
+    Returns:
+        所有会话的元数据列表
+    """
+    try:
+        chat_store_service = get_chat_store_service()
+        sessions = chat_store_service.get_all_sessions()
+
+        return {
+            'success': True,
+            'total_count': len(sessions),
+            'sessions': sessions
+        }
+
+    except Exception as e:
+        logger.error(f"获取会话列表失败: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -673,82 +830,4 @@ async def list_documents():
 
     except Exception as e:
         logger.error(f"列出文档失败: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-# ========== Context 管理接口 ==========
-@router.get('/context/{session_id}/info')
-async def get_context_info(session_id: str):
-    """
-    获取 Context 信息
-
-    返回:
-    - success: 是否成功
-    - context.session_id: 会话ID
-    - context.exists: 是否存在
-    - context.size_bytes: Context JSON 字节大小
-    - context.size_warning: 是否超过大小上限
-    - context.ctx_json: 序列化后的 Context JSON
-    """
-    try:
-        context_service = get_context_service()
-        context_info = context_service.get_context_info(session_id)
-
-        if not context_info:
-            raise HTTPException(status_code=404, detail='Context 不存在或已过期')
-        logger.debug(f"Context: {context_info.get('ctx_json')}")
-
-        return {
-            'success': True,
-            'context': context_info
-        }
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"获取 Context 信息失败: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.delete('/context/{session_id}')
-async def clear_context(session_id: str):
-    """清除 Context"""
-    try:
-        context_service = get_context_service()
-        success = context_service.clear_context(session_id)
-
-        if success:
-            return {
-                'success': True,
-                'message': 'Context 已清除'
-            }
-        else:
-            raise HTTPException(status_code=404, detail='Context 不存在或清除失败')
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"清除 Context 失败: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.post('/context/{session_id}/refresh')
-async def refresh_context(session_id: str):
-    """刷新 Context（延长过期时间）"""
-    try:
-        context_service = get_context_service()
-        success = context_service.refresh_context(session_id)
-
-        if success:
-            return {
-                'success': True,
-                'message': 'Context 已刷新'
-            }
-        else:
-            raise HTTPException(status_code=404, detail='Context 不存在或刷新失败')
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"刷新 Context 失败: {e}")
         raise HTTPException(status_code=500, detail=str(e))

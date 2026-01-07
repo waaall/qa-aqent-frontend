@@ -13,9 +13,9 @@ export const config = {
     // 聊天相关
     chat: import.meta.env.VITE_CHAT_ENDPOINT || '/api/chat',
 
-    // Context 管理
-    contextInfo: import.meta.env.VITE_CONTEXT_INFO_ENDPOINT || '/context',  // 会拼接 /{sessionId}/info
-    contextDelete: import.meta.env.VITE_CONTEXT_DELETE_ENDPOINT || '/context',  // 会拼接 /{sessionId}
+    // 会话历史
+    contextInfo: import.meta.env.VITE_CONTEXT_INFO_ENDPOINT || '/chat',  // 会拼接 /{sessionId}/history
+    contextDelete: import.meta.env.VITE_CONTEXT_DELETE_ENDPOINT || '/chat',  // 会拼接 /{sessionId}/history
     contextRefresh: import.meta.env.VITE_CONTEXT_REFRESH_ENDPOINT || '/context',  // 会拼接 /{sessionId}/refresh
 
     // 文档相关

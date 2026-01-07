@@ -16,10 +16,12 @@ export interface ChatResponse {
   success: boolean;
   answer: string;
   session_id: string;
-  query_type: string;
+  query_type?: string;
   engines_used?: string[];
   confidence?: number;
   enhancement_applied?: boolean;
+  matched_entries?: number;
+  raw?: string;
   error?: string;
 }
 
@@ -29,6 +31,7 @@ export interface UploadDocumentResponse {
   task_id?: string;        // 新增：任务ID
   filename?: string;
   file_type?: string;      // 新增：文件类型
+  label?: string;
   status_url?: string;     // 新增：状态查询URL
   doc_count?: number;
   error?: string;
@@ -77,10 +80,23 @@ export interface SessionHistoryResponse {
   history: Array<{
     role: string;
     content: string;
-    timestamp: number;
+    timestamp?: number;
     metadata?: Record<string, unknown>;
   }>;
-  count: number;
+  count?: number;
+  message_count?: number;
+}
+
+// /chat/{session_id}/history 接口
+export interface ChatHistoryResponse {
+  success: boolean;
+  session_id: string;
+  message_count: number;
+  history: Array<{
+    role: string;
+    content: string;
+    additional_kwargs?: Record<string, unknown>;
+  }>;
 }
 
 // /upload/status/{task_id} 接口
@@ -91,6 +107,7 @@ export interface UploadTaskStatus {
   stage: string | null;
   filename: string;
   file_type: string;
+  label?: string;
   needs_preprocessing: boolean;
   created_at: string;
   progress: {
