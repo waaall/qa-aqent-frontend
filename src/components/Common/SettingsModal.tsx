@@ -9,11 +9,14 @@ import {
   FileTextOutlined,
   DashboardOutlined,
   InfoCircleOutlined,
+  LinkOutlined,
 } from '@ant-design/icons';
 import { ThemeToggle } from './ThemeToggle';
 import { DocumentManagement } from './DocumentManagement';
 import { DatabaseQuery } from './DatabaseQuery';
 import config from '@/config';
+import { BackendConfig } from '@/components/Settings/BackendConfig';
+import { isTauriEnv } from '@/lib/tauri';
 import styles from './SettingsModal.module.css';
 
 const { Text } = Typography;
@@ -24,6 +27,7 @@ interface SettingsModalProps {
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) => {
+  const isTauri = isTauriEnv();
   const tabItems = [
     {
       key: 'theme',
@@ -74,6 +78,24 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
         </div>
       ),
     },
+    ...(isTauri
+      ? [
+          {
+            key: 'backend',
+            label: (
+              <span className={styles.tabLabel}>
+                <LinkOutlined />
+                后端配置
+              </span>
+            ),
+            children: (
+              <div className={styles.tabContent}>
+                <BackendConfig />
+              </div>
+            ),
+          },
+        ]
+      : []),
     {
       key: 'about',
       label: (

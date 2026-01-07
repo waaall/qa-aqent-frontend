@@ -1,0 +1,21 @@
+{
+  "identifier": "main-capability",
+  "description": "Main window access to core and app commands.",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "core:window:allow-show",
+    "core:window:allow-hide",
+    "core:window:allow-set-focus",
+    "dialog:default",
+    "notification:default",
+    "store:default",
+    "allow-get-backend-url",
+    "allow-set-backend-url",
+    "allow-test-backend-connection",
+    "allow-select-file",
+    "allow-save-chat-history",
+    "allow-export-to-json",
+    "allow-show-in-folder"
+  ]
+}

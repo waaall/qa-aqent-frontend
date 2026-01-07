@@ -6,13 +6,22 @@ import axios, { AxiosInstance, AxiosError, AxiosRequestConfig } from 'axios';
 import config from '@/config';
 import logger from '@/utils/logger';
 import { ApiError } from '@/types';
+import { getBackendUrl, isTauriEnv } from '@/lib/tauri';
 
 class ApiClient {
   private instance: AxiosInstance;
+  private baseURL: string;
+  private initPromise: Promise<void>;
 
   constructor() {
+    // 初始化流程：
+    // 1. 使用默认配置创建 Axios 实例（Web 环境使用此默认值）
+    // 2. 设置请求/响应拦截器
+    // 3. 启动异步初始化（Tauri 环境下从 Store 加载后端地址）
+    // 4. 所有 API 方法通过 ready() 等待初始化完成
+    this.baseURL = config.apiBaseUrl;
     this.instance = axios.create({
-      baseURL: config.apiBaseUrl,
+      baseURL: this.baseURL,
       timeout: config.timeout.default,
       headers: {
         'Content-Type': 'application/json',
@@ -20,6 +29,29 @@ class ApiClient {
     });
 
     this.setupInterceptors();
+    this.initPromise = this.init();
+  }
+
+  private async init() {
+    if (!isTauriEnv()) {
+      return;
+    }
+
+    try {
+      const storedUrl = await getBackendUrl();
+      this.updateBaseURL(storedUrl);
+    } catch (error) {
+      logger.warn('Failed to load backend URL from Tauri store', error);
+    }
+  }
+
+  private async ready() {
+    await this.initPromise;
+  }
+
+  public updateBaseURL(url: string) {
+    this.baseURL = url;
+    this.instance.defaults.baseURL = url;
   }
 
   private setupInterceptors() {
@@ -74,16 +106,19 @@ class ApiClient {
   }
 
   async get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
+    await this.ready();
     const response = await this.instance.get<T>(url, config);
     return response.data;
   }
 
   async post<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
+    await this.ready();
     const response = await this.instance.post<T>(url, data, config);
     return response.data;
   }
 
   async delete<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
+    await this.ready();
     const response = await this.instance.delete<T>(url, config);
     return response.data;
   }

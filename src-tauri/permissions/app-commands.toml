@@ -1,0 +1,34 @@
+[[permission]]
+identifier = "allow-get-backend-url"
+description = "Allow read access to the backend URL stored in the app."
+commands.allow = ["get_backend_url"]
+
+[[permission]]
+identifier = "allow-set-backend-url"
+description = "Allow updating the backend URL stored in the app."
+commands.allow = ["set_backend_url"]
+
+[[permission]]
+identifier = "allow-test-backend-connection"
+description = "Allow testing backend connectivity."
+commands.allow = ["test_backend_connection"]
+
+[[permission]]
+identifier = "allow-select-file"
+description = "Allow opening a file picker."
+commands.allow = ["select_file"]
+
+[[permission]]
+identifier = "allow-save-chat-history"
+description = "Allow saving chat history to a file."
+commands.allow = ["save_chat_history"]
+
+[[permission]]
+identifier = "allow-export-to-json"
+description = "Allow exporting data to a JSON file."
+commands.allow = ["export_to_json"]
+
+[[permission]]
+identifier = "allow-show-in-folder"
+description = "Allow showing a file in the system file manager."
+commands.allow = ["show_in_folder"]

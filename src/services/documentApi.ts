@@ -12,6 +12,7 @@ import {
 } from '@/types';
 import config from '@/config';
 import logger from '@/utils/logger';
+import { showNotification } from '@/lib/tauri';
 
 export const documentApi = {
   /**
@@ -76,6 +77,11 @@ export const documentApi = {
           // 终止条件：completed 或 failed
           if (status.status === 'completed' || status.status === 'failed') {
             logger.info('Upload polling finished', { taskId, finalStatus: status.status });
+            if (status.status === 'completed') {
+              void showNotification('文档上传成功', '文件已处理完成');
+            } else {
+              void showNotification('文档上传失败', '文件处理失败，请检查后端状态');
+            }
             resolve(status);
             return;
           }
@@ -139,6 +145,11 @@ export const documentApi = {
               taskId,
               finalStatus: status.status,
             });
+            if (status.status === 'completed') {
+              void showNotification('向量库更新完成', '索引已完成更新');
+            } else {
+              void showNotification('向量库更新失败', '请检查后端任务状态');
+            }
             resolve(status);
             return;
           }
